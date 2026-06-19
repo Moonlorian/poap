@@ -3,11 +3,17 @@
 #[allow(unused_imports)]
 use multiversx_sc::imports::*;
 
-/// An empty contract. To be used as a template when starting a new contract from scratch.
+mod types;
+mod storage;
+
 #[multiversx_sc::contract]
-pub trait PoapSc {
+pub trait PoapSc: storage::StorageModule {
+    // Requires ESDTRoleNFTCreate and ESDTRoleNFTBurn on this token
     #[init]
-    fn init(&self) {}
+    fn init(&self, token_identifier: TokenIdentifier) {
+        self.token_identifier().set(token_identifier);
+        self.last_event_id().set(0u64);
+    }
 
     #[upgrade]
     fn upgrade(&self) {}
