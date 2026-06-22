@@ -73,10 +73,10 @@ pub trait EndpointsModule: crate::storage::StorageModule {
         if self.has_active_event(&organizer) {
             let current_id = self.get_active_event_id(&organizer);
             let current_event = self.get_event_by_id(current_id);
-            let current_is_active = current_event.is_active(date);
 
-            require!(!current_is_active, "The organizer already has an active event");
-            self.event_by_organizer(&organizer).clear();
+            // If the event is not active, run the deactivation procedure
+            require!(!current_event.is_active(date), "The organizer already has an active event");
+            self.deactivate_event(&organizer);
         }
       
         // Mint all the needed SFTs now and create the event struct
