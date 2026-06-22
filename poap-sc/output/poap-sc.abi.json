@@ -23,7 +23,52 @@
         "inputs": [],
         "outputs": []
     },
-    "endpoints": [],
+    "endpoints": [
+        {
+            "name": "createEvent",
+            "rustMethodName": "create_event",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "url",
+                    "type": "bytes"
+                },
+                {
+                    "name": "end_date",
+                    "type": "u64",
+                    "specificType": "TimestampMillis"
+                },
+                {
+                    "name": "max_participants",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "claimEmblem",
+            "rustMethodName": "claim_emblem",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "recipient",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "finalizeEvent",
+            "rustMethodName": "finalize_event",
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        }
+    ],
     "esdtAttributes": [],
     "hasCallback": false,
     "types": {}

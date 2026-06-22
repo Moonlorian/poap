@@ -41,10 +41,23 @@ impl<M: ManagedTypeApi> Event<M> {
         }
     }
 
-    pub fn is_active<S: ManagedTypeApi>(event: Event<S>, date: TimestampMillis) -> bool {
-        let is_expired = date >= event.end_date;
-        let is_full = event.current_participants >= event.max_participants;
+    pub fn is_active(&self, date: TimestampMillis) -> bool {
+        self.is_not_stopped() && self.is_not_expired(date) && self.is_not_full()
+    } 
 
-        return !event.is_stopped && !is_expired && !is_full;
+    pub fn is_not_stopped(&self) -> bool {
+        !self.is_stopped
+    }
+
+    pub fn is_not_expired(&self, date: TimestampMillis) -> bool {
+        self.end_date > date
+    }
+
+    pub fn is_not_full(&self) -> bool {
+        self.current_participants < self.max_participants
+    }
+
+    pub fn remaining_participants(&self) -> u64 {
+        self.max_participants - self.current_participants
     }
 }

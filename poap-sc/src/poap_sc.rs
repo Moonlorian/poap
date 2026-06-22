@@ -5,9 +5,11 @@ use multiversx_sc::imports::*;
 
 mod types;
 mod storage;
+mod endpoints;
+mod views;
 
 #[multiversx_sc::contract]
-pub trait PoapSc: storage::StorageModule {
+pub trait PoapSc: storage::StorageModule + endpoints::EndpointsModule {
     // Requires ESDTRoleNFTCreate and ESDTRoleNFTBurn on this token
     #[init]
     fn init(&self, token_identifier: TokenIdentifier) {
