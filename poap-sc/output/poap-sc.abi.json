@@ -67,9 +67,88 @@
             "mutability": "mutable",
             "inputs": [],
             "outputs": []
+        },
+        {
+            "name": "getActiveEvent",
+            "rustMethodName": "get_active_event_view",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "organizer",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "optional<Event>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "hasClaimed",
+            "rustMethodName": "has_claimed_view",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "event_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
         }
     ],
     "esdtAttributes": [],
     "hasCallback": false,
-    "types": {}
+    "types": {
+        "Event": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "emblem_url",
+                    "type": "bytes"
+                },
+                {
+                    "name": "start_date",
+                    "type": "u64"
+                },
+                {
+                    "name": "end_date",
+                    "type": "u64"
+                },
+                {
+                    "name": "is_stopped",
+                    "type": "bool"
+                },
+                {
+                    "name": "max_participants",
+                    "type": "u64"
+                },
+                {
+                    "name": "current_participants",
+                    "type": "u64"
+                },
+                {
+                    "name": "token_nonce",
+                    "type": "u64"
+                },
+                {
+                    "name": "organizer",
+                    "type": "Address"
+                }
+            ]
+        }
+    }
 }

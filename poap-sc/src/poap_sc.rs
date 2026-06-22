@@ -9,7 +9,7 @@ mod endpoints;
 mod views;
 
 #[multiversx_sc::contract]
-pub trait PoapSc: storage::StorageModule + endpoints::EndpointsModule {
+pub trait PoapSc: storage::StorageModule + endpoints::EndpointsModule + views::ViewsModule {
     // Requires ESDTRoleNFTCreate and ESDTRoleNFTBurn on this token
     #[init]
     fn init(&self, token_identifier: TokenIdentifier) {

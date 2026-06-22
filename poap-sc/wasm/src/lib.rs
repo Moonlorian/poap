@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                            3
+// Endpoints:                            5
 // Async Callback (empty):               1
-// Total number of exported functions:   6
+// Total number of exported functions:   8
 
 #![no_std]
 
@@ -23,6 +23,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         createEvent => create_event
         claimEmblem => claim_emblem
         finalizeEvent => finalize_event
+        getActiveEvent => get_active_event_view
+        hasClaimed => has_claimed_view
     )
 }
 
