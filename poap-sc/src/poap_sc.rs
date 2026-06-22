@@ -7,6 +7,7 @@ mod types;
 mod storage;
 mod endpoints;
 mod views;
+pub mod poap_sc_proxy;
 
 #[multiversx_sc::contract]
 pub trait PoapSc: storage::StorageModule + endpoints::EndpointsModule + views::ViewsModule {

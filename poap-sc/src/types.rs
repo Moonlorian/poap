@@ -33,7 +33,7 @@ impl<M: ManagedTypeApi> Event<M> {
             emblem_url,
             start_date,
             end_date,
-            is_stopped: true,
+            is_stopped: false,
             max_participants,
             current_participants: 0,
             token_nonce,

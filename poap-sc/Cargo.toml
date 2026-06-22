@@ -17,6 +17,13 @@ num-bigint = "0.4"
 [dev-dependencies.multiversx-sc-scenario]
 version = "0.66.2"
 
+[[test]]
+name = "poap_sc_blackbox_test"
+path = "tests/poap_sc_blackbox_test.rs"
+
+[dev-dependencies.poap-sc]
+path = "."
+
 [workspace]
 members = [
     ".",

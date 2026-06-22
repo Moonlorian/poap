@@ -1,5 +1,5 @@
 use multiversx_sc::imports::*;
-use crate::types::{Event, EventId};
+use crate::types::{Event};
 
 #[multiversx_sc::module]
 pub trait EndpointsModule: crate::storage::StorageModule {
@@ -11,14 +11,14 @@ pub trait EndpointsModule: crate::storage::StorageModule {
         self.blockchain().get_caller()
     }
 
-    fn mint_sfts(&self, count: u64, name: &ManagedBuffer, event_id: EventId) -> u64 {
+    fn mint_sfts(&self, count: u64, name: &ManagedBuffer) -> u64 {
         self.send().esdt_nft_create(
             &self.token_identifier().get(),
             &BigUint::from(count),
             &name,
             &BigUint::zero(),       // No royalties
             &ManagedBuffer::new(),  // No hash
-            &event_id,              // Event ID as the attribute
+            &ManagedBuffer::new(),  // No attributes
             &ManagedVec::new(),     // No URI, it is stored in the Event struct
         )
     }
@@ -80,11 +80,11 @@ pub trait EndpointsModule: crate::storage::StorageModule {
         }
       
         // Mint all the needed SFTs now and create the event struct
-        let event_id = self.get_new_event_id();
-        let token_nonce = self.mint_sfts(max_participants, &name, event_id);
+        let token_nonce = self.mint_sfts(max_participants, &name);
         let event = Event::new(name, url, date, end_date, max_participants, token_nonce, organizer.clone());
 
         // Store the event
+        let event_id = self.get_new_event_id();
         self.events(event_id).set(event);
         self.event_by_organizer(&organizer).set(event_id);
     }
@@ -92,11 +92,12 @@ pub trait EndpointsModule: crate::storage::StorageModule {
     // Claims and transfers a SFT to a recipient address
     #[endpoint(claimEmblem)]
     fn claim_emblem(&self, recipient: ManagedAddress) {
+        // Check the organizer has no active event
         let organizer = self.organizer();
-        let event_id = self.get_active_event_id(&organizer);
-
-        // Validate the organizer and recipient
         require!(self.has_active_event(&organizer), "The address has no active event");
+        
+        // Check the recipient hasn't claimed the event previously
+        let event_id = self.get_active_event_id(&organizer);
         require!(!self.has_claimed_event(event_id, &recipient), "This recipient already has claimed this event");
 
         // Check that the event is active and valid
