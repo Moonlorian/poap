@@ -16,3 +16,4 @@ poap-sc/**/mutants.out*/
 # rustc will dump stack traces when hitting an internal compiler error to PWD
 poap-sc/rustc-ice-*.txt
 poap-sc/src/temp_poap_contract.rs
+poap-sc/wallet.pem
