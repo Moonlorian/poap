@@ -11,7 +11,10 @@ pub trait EndpointsModule: crate::storage::StorageModule {
         self.blockchain().get_caller()
     }
 
-    fn mint_sfts(&self, count: u64, name: &ManagedBuffer) -> u64 {
+    fn mint_sfts(&self, count: u64, name: &ManagedBuffer, url: &ManagedBuffer) -> u64 {
+        let mut uris = ManagedVec::new();
+        uris.push(url.clone());
+        
         self.send().esdt_nft_create(
             &self.token_identifier().get(),
             &BigUint::from(count),
@@ -19,7 +22,7 @@ pub trait EndpointsModule: crate::storage::StorageModule {
             &BigUint::zero(),       // No royalties
             &ManagedBuffer::new(),  // No hash
             &ManagedBuffer::new(),  // No attributes
-            &ManagedVec::new(),     // No URI, it is stored in the Event struct
+            &uris,
         )
     }
 
@@ -80,7 +83,7 @@ pub trait EndpointsModule: crate::storage::StorageModule {
         }
       
         // Mint all the needed SFTs now and create the event struct
-        let token_nonce = self.mint_sfts(max_participants, &name);
+        let token_nonce = self.mint_sfts(max_participants, &name, &url);
         let event = Event::new(name, url, date, end_date, max_participants, token_nonce, organizer.clone());
 
         // Store the event
