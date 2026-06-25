@@ -1,0 +1,154 @@
+{
+    "buildInfo": {
+        "contractCrate": {
+            "name": "poap-sc",
+            "version": "0.0.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.66.2"
+        }
+    },
+    "name": "PoapSc",
+    "constructor": {
+        "inputs": [
+            {
+                "name": "token_identifier",
+                "type": "TokenIdentifier"
+            }
+        ],
+        "outputs": []
+    },
+    "upgradeConstructor": {
+        "inputs": [],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "name": "createEvent",
+            "rustMethodName": "create_event",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "url",
+                    "type": "bytes"
+                },
+                {
+                    "name": "end_date",
+                    "type": "u64",
+                    "specificType": "TimestampMillis"
+                },
+                {
+                    "name": "max_participants",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "claimEmblem",
+            "rustMethodName": "claim_emblem",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "recipient",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "finalizeEvent",
+            "rustMethodName": "finalize_event",
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "getActiveEvent",
+            "rustMethodName": "get_active_event_view",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "organizer",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "optional<Event>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "hasClaimed",
+            "rustMethodName": "has_claimed_view",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "event_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "address",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        }
+    ],
+    "esdtAttributes": [],
+    "hasCallback": false,
+    "types": {
+        "Event": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "bytes"
+                },
+                {
+                    "name": "emblem_url",
+                    "type": "bytes"
+                },
+                {
+                    "name": "start_date",
+                    "type": "u64"
+                },
+                {
+                    "name": "end_date",
+                    "type": "u64"
+                },
+                {
+                    "name": "is_stopped",
+                    "type": "bool"
+                },
+                {
+                    "name": "max_participants",
+                    "type": "u64"
+                },
+                {
+                    "name": "current_participants",
+                    "type": "u64"
+                },
+                {
+                    "name": "token_nonce",
+                    "type": "u64"
+                },
+                {
+                    "name": "organizer",
+                    "type": "Address"
+                }
+            ]
+        }
+    }
+}
