@@ -3,14 +3,17 @@ use crate::types::{Event};
 
 #[multiversx_sc::module]
 pub trait EndpointsModule: crate::storage::StorageModule {
+    // Get the current date in milliseconds
     fn date(&self) -> TimestampMillis {
         self.blockchain().get_block_timestamp_millis()
     }
 
+    // The caller always represents the organizer
     fn organizer(&self) -> ManagedAddress {
         self.blockchain().get_caller()
     }
 
+    // Create all the SFT's needed to cover the max amount of participants
     fn mint_sfts(&self, count: u64, name: &ManagedBuffer, url: &ManagedBuffer) -> u64 {
         let mut uris = ManagedVec::new();
         uris.push(url.clone());
@@ -26,6 +29,7 @@ pub trait EndpointsModule: crate::storage::StorageModule {
         )
     }
 
+    // Transfer SFT from the Contract to the Recipient address
     fn transfer_sft(&self, recipient: &ManagedAddress, token_nonce: u64) {
         self.send().direct_esdt(
             recipient,
@@ -35,6 +39,7 @@ pub trait EndpointsModule: crate::storage::StorageModule {
         );
     }
 
+    // Burn excess SFT's
     fn burn_sfts(&self, event: &Event<Self::Api>) {
         let token_nonce = event.token_nonce;
         let amount = event.remaining_participants();
@@ -48,7 +53,8 @@ pub trait EndpointsModule: crate::storage::StorageModule {
         }
     }
 
-    fn deactivate_event(&self, organizer: &ManagedAddress) {
+    // Stops the event and burns excess SFT's, no matter if end_date was reached
+    fn stop_event(&self, organizer: &ManagedAddress) {
         let event_id = self.get_active_event_id(&organizer);
         let mut event = self.get_event_by_id(event_id);
 
@@ -79,7 +85,7 @@ pub trait EndpointsModule: crate::storage::StorageModule {
 
             // If the event is not active, run the deactivation procedure
             require!(!current_event.is_active(date), "The organizer already has an active event");
-            self.deactivate_event(&organizer);
+            self.stop_event(&organizer);
         }
       
         // Mint all the needed SFTs now and create the event struct
@@ -121,6 +127,6 @@ pub trait EndpointsModule: crate::storage::StorageModule {
     fn finalize_event(&self) {
         let organizer = self.organizer();
         require!(self.has_active_event(&organizer), "The address has no active event");
-        self.deactivate_event(&organizer);
+        self.stop_event(&organizer);
     }
 }

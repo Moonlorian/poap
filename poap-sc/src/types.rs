@@ -41,22 +41,27 @@ impl<M: ManagedTypeApi> Event<M> {
         }
     }
 
+    // The event is active if: it's not stopped, it's within the deadline (end_date) and there are remaining participants
     pub fn is_active(&self, date: TimestampMillis) -> bool {
         self.is_not_stopped() && self.is_not_expired(date) && self.is_not_full()
     } 
 
+    // Returns false when the event gets finalized by the organizer or the end_date is reached 
     pub fn is_not_stopped(&self) -> bool {
         !self.is_stopped
     }
 
+    // Whether the end_date was reached or not
     pub fn is_not_expired(&self, date: TimestampMillis) -> bool {
         self.end_date > date
     }
 
+    // Whether there's any SFT left to claim
     pub fn is_not_full(&self) -> bool {
         self.current_participants < self.max_participants
     }
 
+    // Amount of participants that can join before hitting the limit
     pub fn remaining_participants(&self) -> u64 {
         self.max_participants - self.current_participants
     }
