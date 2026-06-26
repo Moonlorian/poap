@@ -1,74 +1,89 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MobileLayout } from '@/components/MobileLayout';
 import { PoapButton } from '@/components/PoapButton';
-import {
-  claimEmblemWithPem,
-  getActiveEvent,
-  validatePem
-} from '@/contracts/poapContract';
+import { claimEmblemWithPem, getActiveEvent } from '@/contracts/poapContract';
 import { useGetAccount } from '@/lib';
-import { parseClaimParams } from '@/utils/dates';
 import { RouteNamesEnum } from '@/routes/routeNames';
+import { parseClaimParams } from '@/utils/dates';
+
+const STATUS = { IDLE: 'idle', CLAIMING: 'claiming', SUCCESS: 'success', ERROR: 'error' };
 
 export const ClaimPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { address } = useGetAccount();
+
+  const [status, setStatus] = useState(STATUS.IDLE);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [event, setEvent] = useState(null);
+  const claimed = useRef(false);
+
   const { organizer, pem } = parseClaimParams(searchParams);
-  const [status, setStatus] = useState('idle');
-  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!organizer || !pem) {
-      setError('Enllaç de classe incomplet.');
-      setStatus('error');
-    }
-  }, [organizer, pem]);
+    if (!organizer || !pem || !address || claimed.current) return;
 
-  const handleClaim = async () => {
-    if (!validatePem(pem)) {
-      setError('Clau PEM no vàlida.');
-      setStatus('error');
-      return;
-    }
+    const run = async () => {
+      claimed.current = true;
+      setStatus(STATUS.CLAIMING);
+      setErrorMsg('');
 
-    try {
-      setStatus('loading');
-      setError('');
-
-      const activeEvent = await getActiveEvent(organizer);
-      if (!activeEvent) {
-        throw new Error('No hi ha cap classe activa per aquest professor.');
+      if (!pem) {
+        setStatus(STATUS.ERROR);
+        setErrorMsg('El QR no és vàlid. Torna a escanejar-lo.');
+        return;
       }
 
-      await claimEmblemWithPem({ pem, recipientAddress: address });
+      try {
+        const activeEvent = await getActiveEvent(organizer);
+        setEvent(activeEvent);
 
-      navigate(RouteNamesEnum.emblemObtained, {
-        state: {
-          event: activeEvent,
-          obtainedAt: Date.now()
-        }
-      });
-    } catch (err) {
-      setError(err.message ?? 'Error en reclamar l\'emblema.');
-      setStatus('error');
-    }
+        await claimEmblemWithPem({ pem, recipientAddress: address });
+        setStatus(STATUS.SUCCESS);
+      } catch (err) {
+        claimed.current = false;
+        setStatus(STATUS.ERROR);
+        setErrorMsg(err?.message ?? "Error en reclamar l'emblema.");
+      }
+    };
+
+    run();
+  }, [organizer, pem, address]);
+
+  const handleContinue = () => {
+    navigate(RouteNamesEnum.emblemObtained, { state: { event } });
   };
 
   return (
-    <MobileLayout title='Unir-se a l&apos;esdeveniment' showBack onBack={() => navigate(RouteNamesEnum.student)}>
+    <MobileLayout title='Unir-se a la classe'>
       <div className='poap-claim'>
-        <p className='poap-muted'>Professor: {organizer || '-'}</p>
-        <p className='poap-muted'>Alumne: {address}</p>
+        {(status === STATUS.IDLE || status === STATUS.CLAIMING) && (
+          <div className='poap-claim-loading'>
+            <div className='poap-spinner' />
+            <p className='poap-muted'>Reclamant el teu emblema...</p>
+            {event && <p className='poap-event-name'>{event.name}</p>}
+          </div>
+        )}
 
-        {status === 'loading' && <p>Processant reclamació...</p>}
-        {error && <p className='poap-error'>{error}</p>}
+        {status === STATUS.SUCCESS && (
+          <div className='poap-claim-success'>
+            <p className='poap-success-icon'>✅</p>
+            <h3>Emblema rebut!</h3>
+            {event && <p className='poap-event-name'>{event.name}</p>}
+            <PoapButton onClick={handleContinue}>Veure l&apos;emblema</PoapButton>
+          </div>
+        )}
 
-        {status !== 'loading' && (
-          <PoapButton onClick={handleClaim} disabled={!organizer || !pem}>
-            Reclamar emblema
-          </PoapButton>
+        {status === STATUS.ERROR && (
+          <div className='poap-claim-error'>
+            <p className='poap-error-icon'>❌</p>
+            <h3>Error en reclamar</h3>
+            <p className='poap-error'>{errorMsg}</p>
+            <PoapButton variant='secondary' onClick={() => navigate(RouteNamesEnum.student)}>
+              Tornar al panell
+            </PoapButton>
+          </div>
         )}
       </div>
     </MobileLayout>

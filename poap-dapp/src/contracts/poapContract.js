@@ -43,6 +43,10 @@ const getFactory = () =>
 
 const getContractAddress = () => Address.newFromBech32(contractAddress);
 
+// ---------------------------------------------------------------------------
+// Parsing
+// ---------------------------------------------------------------------------
+
 export const parseEvent = (raw) => {
   if (!raw) return null;
 
@@ -65,6 +69,10 @@ export const parseEvent = (raw) => {
   };
 };
 
+// ---------------------------------------------------------------------------
+// Queries (readonly)
+// ---------------------------------------------------------------------------
+
 export const getActiveEvent = async (organizerAddress) => {
   const controller = getController();
   const result = await controller.query({
@@ -80,6 +88,31 @@ export const getActiveEvent = async (organizerAddress) => {
 
   return parseEvent(first);
 };
+
+/**
+ * Checks whether a given address has already claimed the emblem for an event.
+ * @param {number|bigint} eventId  - token nonce / event ID from the active event
+ * @param {string} address         - bech32 address to check
+ * @returns {Promise<boolean>}
+ */
+export const hasClaimed = async (eventId, address) => {
+  const controller = getController();
+  const result = await controller.query({
+    contract: getContractAddress(),
+    function: 'hasClaimed',
+    arguments: [BigInt(eventId), Address.newFromBech32(address)]
+  });
+
+  if (!result || result.length === 0) return false;
+
+  const value = result[0];
+  // sdk-core returns a BooleanValue; unwrap it safely
+  return value?.valueOf?.() ?? Boolean(value);
+};
+
+// ---------------------------------------------------------------------------
+// PEM helpers
+// ---------------------------------------------------------------------------
 
 export const createAccountFromPem = (pem) => {
   const signer = UserSigner.fromPem(pem.trim());
@@ -99,6 +132,10 @@ export const validatePem = (pem) => {
     return false;
   }
 };
+
+// ---------------------------------------------------------------------------
+// Transaction sending (connected wallet)
+// ---------------------------------------------------------------------------
 
 export const sendSignedTransactions = async (signedTransactions, messages) => {
   const transactionManager = TransactionManager.getInstance();
@@ -126,24 +163,21 @@ export const signAndSendWithProvider = async (transaction, messages) => {
   return sendSignedTransactions(signedTransactions, messages);
 };
 
-export const createEventTransaction = async ({
-  senderAddress,
-  nonce,
-  name,
-  url,
-  endDate,
-  maxParticipants
-}) => {
+// ---------------------------------------------------------------------------
+// Transaction builders (connected wallet)
+// ---------------------------------------------------------------------------
+
+export const createEventTransaction = ({ senderAddress, name, url, endDate, maxParticipants }) => {
   const factory = getFactory();
   return factory.createTransactionForExecute(Address.newFromBech32(senderAddress), {
     contract: getContractAddress(),
     function: 'createEvent',
-    arguments: [name, url, endDate, maxParticipants],
+    arguments: [name, url, BigInt(endDate), BigInt(maxParticipants)],
     gasLimit: GAS_LIMIT_CREATE
   });
 };
 
-export const finalizeEventTransaction = async ({ senderAddress, nonce }) => {
+export const finalizeEventTransaction = ({ senderAddress }) => {
   const factory = getFactory();
   return factory.createTransactionForExecute(Address.newFromBech32(senderAddress), {
     contract: getContractAddress(),
@@ -153,28 +187,56 @@ export const finalizeEventTransaction = async ({ senderAddress, nonce }) => {
   });
 };
 
+// ---------------------------------------------------------------------------
+// claimEmblem — signed with organizer PEM (not connected wallet)
+// ---------------------------------------------------------------------------
+
+/**
+ * Signs and sends a claimEmblem transaction using the organizer's PEM key.
+ * The organizer (sender) pays the gas; the recipient receives the NFT.
+ *
+ * @param {{ pem: string, recipientAddress: string }} params
+ * @returns {Promise<string>} transaction hash
+ */
 export const claimEmblemWithPem = async ({ pem, recipientAddress }) => {
-  const account = createAccountFromPem(pem);
+  const signer = UserSigner.fromPem(pem.trim());
+  const organizerAddress = signer.getAddress();
+
   const provider = getNetworkProvider();
-  const accountOnNetwork = await provider.getAccount(account.address);
-  account.nonce = BigInt(accountOnNetwork.nonce);
 
-  const controller = getController();
-  const transaction = await controller.createTransactionForExecute(
-    account,
-    account.nonce,
-    {
-      contract: getContractAddress(),
-      function: 'claimEmblem',
-      arguments: [Address.newFromBech32(recipientAddress)],
-      gasLimit: GAS_LIMIT_CLAIM
-    }
-  );
+  // Fetch on-chain nonce for the organizer account
+  const accountOnNetwork = await provider.getAccount(organizerAddress);
+  const nonce = BigInt(accountOnNetwork.nonce);
 
+  // Build the transaction using the factory (same pattern as other transactions)
+  const factory = getFactory();
+  const transaction = factory.createTransactionForExecute(organizerAddress, {
+    contract: getContractAddress(),
+    function: 'claimEmblem',
+    arguments: [Address.newFromBech32(recipientAddress)],
+    gasLimit: GAS_LIMIT_CLAIM
+  });
+
+  // Set fields the factory leaves blank
+  transaction.nonce = nonce;
+  transaction.chainID = chainId;
+  transaction.gasPrice = BigInt(GAS_PRICE);
+
+  // Sign with the PEM key
+  const serialized = transaction.serializeForSigning();
+  const signature = await signer.sign(serialized);
+  transaction.applySignature(signature);
+
+  // Broadcast and wait for finality
   const txHash = await provider.sendTransaction(transaction);
   await provider.awaitTransactionCompleted(txHash);
+
   return txHash;
 };
+
+// ---------------------------------------------------------------------------
+// React hook — connected wallet transactions
+// ---------------------------------------------------------------------------
 
 export const usePoapTransactions = () => {
   const { address, nonce } = useGetAccount();
@@ -182,9 +244,8 @@ export const usePoapTransactions = () => {
 
   const sendCreateEvent = async ({ name, url, endDate, maxParticipants }) => {
     await refreshAccount();
-    const transaction = await createEventTransaction({
+    const transaction = createEventTransaction({
       senderAddress: address,
-      nonce,
       name,
       url,
       endDate,
@@ -203,10 +264,7 @@ export const usePoapTransactions = () => {
 
   const sendFinalizeEvent = async () => {
     await refreshAccount();
-    const transaction = await finalizeEventTransaction({
-      senderAddress: address,
-      nonce
-    });
+    const transaction = finalizeEventTransaction({ senderAddress: address });
     transaction.nonce = BigInt(nonce);
     transaction.chainID = network.chainId;
     transaction.gasPrice = BigInt(GAS_PRICE);

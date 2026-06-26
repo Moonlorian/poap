@@ -14,3 +14,8 @@ export const faucetUrl = 'https://devnet-wallet.multiversx.com/faucet';
 export const walletGuideUrl = 'https://docs.multiversx.com/wallet/create-wallet';
 export const companyName = 'Company Name';
 export const chainId = 'D';
+
+export const EMBLEM_IMAGES = [
+  { label: 'Estrella', url: '/emblems/star.png' },
+  { label: 'Diploma', url: '/emblems/diploma.png' },
+];

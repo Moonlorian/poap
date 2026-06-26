@@ -14,15 +14,16 @@ export const EmblemGrid = ({ nfts, loading }) => {
       {nfts.map((nft) => {
         const imageUrl = nft.media?.[0]?.url ?? nft.url ?? '';
         const name = nft.name ?? 'Emblema';
-        const timestamp = nft.timestamp ? Number(nft.timestamp) * 1000 : null;
+        // Devnet API returns timestamp already in milliseconds
+        const timestamp = nft.timestamp ? Number(nft.timestamp) : null;
 
         return (
-          <article key={`${nft.identifier}-${nft.nonce}`} className='poap-emblem-card'>
+          <article key={nft.identifier} className='poap-emblem-card'>
             <div className='poap-emblem-image'>
               {imageUrl ? (
                 <img src={imageUrl} alt={name} />
               ) : (
-                <div className='poap-emblem-placeholder'>🏔</div>
+                <div className='poap-emblem-placeholder'>🏅</div>
               )}
             </div>
             <p className='poap-emblem-name'>{name}</p>
