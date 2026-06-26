@@ -1,6 +1,6 @@
 import { LoginPage } from '@/pages/LoginPage';
-import { WalletGuidePage } from '@/pages/WalletGuidePage';
-import { FundsGuidePage } from '@/pages/FundsGuidePage';
+import { WalletGuidePage } from '@/pages/guides/WalletGuidePage';
+import { FundsGuidePage } from '@/pages/guides/FundsGuidePage';
 import { RoleSelectPage } from '@/pages/RoleSelectPage';
 import { StudentHomePage } from '@/pages/student/StudentHomePage';
 import { ClaimPage } from '@/pages/student/ClaimPage';

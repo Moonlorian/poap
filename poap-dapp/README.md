@@ -25,8 +25,6 @@ In the project folder run:
 
 ```bash
 yarn start-devnet
-yarn start-testnet
-yarn start-mainnet
 ```
 
 This will start the React app in development mode, using the configs found in the `vite.config.ts` file.
@@ -42,6 +40,4 @@ To build the project run:
 
 ```bash
 yarn build-devnet
-yarn build-testnet
-yarn build-mainnet
 ```

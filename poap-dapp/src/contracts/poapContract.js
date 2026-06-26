@@ -8,6 +8,7 @@ import {
   TransactionsFactoryConfig,
   UserSigner
 } from '@multiversx/sdk-core';
+
 import {
   GAS_PRICE,
   getAccountProvider,
@@ -16,6 +17,7 @@ import {
   useGetAccount,
   useGetNetworkConfig
 } from '@/lib';
+
 import { chainId, contractAddress, PROXY_URL } from '@/config';
 import poapAbi from './poap-sc.abi.json';
 
@@ -43,10 +45,6 @@ const getFactory = () =>
 
 const getContractAddress = () => Address.newFromBech32(contractAddress);
 
-// ---------------------------------------------------------------------------
-// Parsing
-// ---------------------------------------------------------------------------
-
 export const parseEvent = (raw) => {
   if (!raw) return null;
 
@@ -69,10 +67,6 @@ export const parseEvent = (raw) => {
   };
 };
 
-// ---------------------------------------------------------------------------
-// Queries (readonly)
-// ---------------------------------------------------------------------------
-
 export const getActiveEvent = async (organizerAddress) => {
   const controller = getController();
   const result = await controller.query({
@@ -89,12 +83,6 @@ export const getActiveEvent = async (organizerAddress) => {
   return parseEvent(first);
 };
 
-/**
- * Checks whether a given address has already claimed the emblem for an event.
- * @param {number|bigint} eventId  - token nonce / event ID from the active event
- * @param {string} address         - bech32 address to check
- * @returns {Promise<boolean>}
- */
 export const hasClaimed = async (eventId, address) => {
   const controller = getController();
   const result = await controller.query({
@@ -109,10 +97,6 @@ export const hasClaimed = async (eventId, address) => {
   // sdk-core returns a BooleanValue; unwrap it safely
   return value?.valueOf?.() ?? Boolean(value);
 };
-
-// ---------------------------------------------------------------------------
-// PEM helpers
-// ---------------------------------------------------------------------------
 
 export const createAccountFromPem = (pem) => {
   const signer = UserSigner.fromPem(pem.trim());
@@ -132,10 +116,6 @@ export const validatePem = (pem) => {
     return false;
   }
 };
-
-// ---------------------------------------------------------------------------
-// Transaction sending (connected wallet)
-// ---------------------------------------------------------------------------
 
 export const sendSignedTransactions = async (signedTransactions, messages) => {
   const transactionManager = TransactionManager.getInstance();
@@ -163,10 +143,6 @@ export const signAndSendWithProvider = async (transaction, messages) => {
   return sendSignedTransactions(signedTransactions, messages);
 };
 
-// ---------------------------------------------------------------------------
-// Transaction builders (connected wallet)
-// ---------------------------------------------------------------------------
-
 export const createEventTransaction = ({ senderAddress, name, url, endDate, maxParticipants }) => {
   const factory = getFactory();
   return factory.createTransactionForExecute(Address.newFromBech32(senderAddress), {
@@ -187,17 +163,6 @@ export const finalizeEventTransaction = ({ senderAddress }) => {
   });
 };
 
-// ---------------------------------------------------------------------------
-// claimEmblem — signed with organizer PEM (not connected wallet)
-// ---------------------------------------------------------------------------
-
-/**
- * Signs and sends a claimEmblem transaction using the organizer's PEM key.
- * The organizer (sender) pays the gas; the recipient receives the NFT.
- *
- * @param {{ pem: string, recipientAddress: string }} params
- * @returns {Promise<string>} transaction hash
- */
 export const claimEmblemWithPem = async ({ pem, recipientAddress }) => {
   const signer = UserSigner.fromPem(pem.trim());
   const organizerAddress = signer.getAddress();
@@ -233,10 +198,6 @@ export const claimEmblemWithPem = async ({ pem, recipientAddress }) => {
 
   return txHash;
 };
-
-// ---------------------------------------------------------------------------
-// React hook — connected wallet transactions
-// ---------------------------------------------------------------------------
 
 export const usePoapTransactions = () => {
   const { address, nonce } = useGetAccount();

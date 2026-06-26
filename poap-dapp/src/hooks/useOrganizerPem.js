@@ -3,18 +3,6 @@ import { validatePem, getAddressFromPem } from '@/contracts/poapContract';
 
 const SESSION_KEY = 'poap:organizerPem';
 
-/**
- * Persists the organizer PEM in sessionStorage for the duration of the session.
- *
- * Usage in teacher flow:
- *   const { pem, pemAddress, savePem, clearPem, isValid } = useOrganizerPem();
- *
- * - savePem(rawPem)  — validates and stores; returns true on success
- * - clearPem()       — removes from state + sessionStorage
- * - pem              — current PEM string or null
- * - pemAddress       — bech32 address derived from PEM, or null
- * - isValid          — whether the stored PEM passes validation
- */
 export const useOrganizerPem = () => {
   const [pem, setPem] = useState(() => sessionStorage.getItem(SESSION_KEY));
   const [pemAddress, setPemAddress] = useState(null);

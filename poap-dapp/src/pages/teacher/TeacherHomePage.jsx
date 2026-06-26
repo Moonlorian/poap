@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MobileLayout } from '@/components/MobileLayout';
 import { PoapButton } from '@/components/PoapButton';
-import { hasMinimumEgld } from '@/api/devnetApi';
 import { usePoapTransactions } from '@/contracts/poapContract';
+import { useAccountBalance } from '@/hooks/useAccountBalance';
 import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useOrganizerPem } from '@/hooks/useOrganizerPem';
 import { getAccountProvider, useGetAccount } from '@/lib';
@@ -11,14 +11,22 @@ import { RouteNamesEnum } from '@/routes/routeNames';
 import { formatDateTime } from '@/utils/dates';
 import { EMBLEM_IMAGES, minEgld } from '@/config';
 
-// ---------------------------------------------------------------------------
-// CreateEventForm
-// ---------------------------------------------------------------------------
-const CreateEventForm = ({ onSuccess }) => {
+const LowBalanceWarning = ({ balance }) => (
+  <div className='poap-warning-banner'>
+    <p>
+      ⚠️ La teva wallet té <strong>{balance !== null ? balance.toFixed(4) : '—'} xEGLD</strong>,
+      però cal un mínim de <strong>{minEgld} xEGLD</strong> per crear una classe.
+    </p>
+    <Link to={RouteNamesEnum.fundsGuide} className='poap-link'>
+      Com reclamar xEGLD gratuïts →
+    </Link>
+  </div>
+);
+
+const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
   const { address } = useGetAccount();
   const { sendCreateEvent } = usePoapTransactions();
   const { pem, pemAddress, savePem, isValid: pemValid } = useOrganizerPem();
-  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     name: '',
@@ -36,6 +44,11 @@ const CreateEventForm = ({ onSuccess }) => {
 
   const handleSubmit = async () => {
     setError('');
+
+    if (!hasEnoughFunds) {
+      setError('Saldo insuficient. Reclama xEGLD abans de crear una classe.');
+      return;
+    }
 
     if (!form.name.trim()) return setError('El nom és obligatori.');
     const imageUrl = form.useCustomUrl ? form.customUrl.trim() : form.imageUrl;
@@ -57,19 +70,12 @@ const CreateEventForm = ({ onSuccess }) => {
 
     setSubmitting(true);
     try {
-      const hasBalance = await hasMinimumEgld(address);
-      if (!hasBalance) {
-        navigate(RouteNamesEnum.fundsGuide);
-        return;
-      }
-
       await sendCreateEvent({
         name: form.name.trim(),
         url: imageUrl,
         endDate: endTs,
         maxParticipants: maxP
       });
-
       onSuccess();
     } catch (err) {
       setError(err?.message ?? 'Error en crear la classe.');
@@ -77,6 +83,8 @@ const CreateEventForm = ({ onSuccess }) => {
       setSubmitting(false);
     }
   };
+
+  const submitDisabled = submitting || !hasEnoughFunds;
 
   return (
     <div className='poap-form-section'>
@@ -170,16 +178,19 @@ const CreateEventForm = ({ onSuccess }) => {
 
       {error && <p className='poap-error'>{error}</p>}
 
-      <PoapButton onClick={handleSubmit} disabled={submitting}>
+      <PoapButton onClick={handleSubmit} disabled={submitDisabled}>
         {submitting ? 'Creant classe...' : 'Crear classe'}
       </PoapButton>
+
+      {!hasEnoughFunds && (
+        <p className='poap-muted' style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+          El botó s&apos;activarà quan tinguis prou xEGLD.
+        </p>
+      )}
     </div>
   );
 };
 
-// ---------------------------------------------------------------------------
-// ActiveEventPanel
-// ---------------------------------------------------------------------------
 const ActiveEventPanel = ({ event, onFinalize, onShowQr }) => {
   const [finalizing, setFinalizing] = useState(false);
   const [error, setError] = useState('');
@@ -224,13 +235,18 @@ const ActiveEventPanel = ({ event, onFinalize, onShowQr }) => {
   );
 };
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 export const TeacherHomePage = () => {
   const navigate = useNavigate();
   const { address } = useGetAccount();
-  const { event, loading, refresh } = useActiveEvent(address);
+  const { event, loading: eventLoading, refresh } = useActiveEvent(address);
+  const {
+    balance,
+    loading: balanceLoading,
+    hasEnoughFunds,
+    refresh: refreshBalance
+  } = useAccountBalance(address);
+
+  const loading = eventLoading || balanceLoading;
 
   const handleLogout = async () => {
     const provider = getAccountProvider();
@@ -243,14 +259,28 @@ export const TeacherHomePage = () => {
       <div className='poap-teacher'>
         {loading ? (
           <p className='poap-muted'>Carregant...</p>
-        ) : event ? (
-          <ActiveEventPanel
-            event={event}
-            onFinalize={refresh}
-            onShowQr={() => navigate(RouteNamesEnum.teacherQr)}
-          />
         ) : (
-          <CreateEventForm onSuccess={refresh} />
+          <>
+            {!event && !hasEnoughFunds && (
+              <LowBalanceWarning balance={balance} />
+            )}
+
+            {event ? (
+              <ActiveEventPanel
+                event={event}
+                onFinalize={() => {
+                  refresh();
+                  refreshBalance();
+                }}
+                onShowQr={() => navigate(RouteNamesEnum.teacherQr)}
+              />
+            ) : (
+              <CreateEventForm
+                onSuccess={refresh}
+                hasEnoughFunds={hasEnoughFunds}
+              />
+            )}
+          </>
         )}
 
         <PoapButton variant='secondary' onClick={handleLogout}>

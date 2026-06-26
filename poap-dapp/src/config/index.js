@@ -11,7 +11,7 @@ export const environment = EnvironmentsEnum.devnet;
 export const sampleAuthenticatedDomains = [API_URL];
 export const minEgld = 0.1;
 export const faucetUrl = 'https://devnet-wallet.multiversx.com/faucet';
-export const walletGuideUrl = 'https://docs.multiversx.com/wallet/create-wallet';
+export const walletGuideUrl = 'https://devnet-wallet.multiversx.com';
 export const companyName = 'Company Name';
 export const chainId = 'D';
 
