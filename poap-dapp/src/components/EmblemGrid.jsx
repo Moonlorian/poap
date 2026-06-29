@@ -12,7 +12,8 @@ export const EmblemGrid = ({ nfts, loading }) => {
   return (
     <div className='poap-emblem-grid'>
       {nfts.map((nft) => {
-        const imageUrl = nft.media?.[0]?.url ?? nft.url ?? '';
+        console.log(JSON.stringify(nft));
+        const imageUrl = nft.url ?? 'https://devnet-media.multiversx.com/nfts/thumbnail/default.png';
         const name = nft.name ?? 'Emblema';
         // Devnet API returns timestamp already in milliseconds
         const timestamp = nft.timestamp ? Number(nft.timestamp) : null;

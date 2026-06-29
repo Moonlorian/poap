@@ -14,8 +14,7 @@ export const QrPage = () => {
   const { event, loading } = useActiveEvent(address, null);
   const { pem } = useOrganizerPem();
 
-  const claimUrl =
-    address && pem ? buildClaimUrl(window.location.origin, address, pem) : null;
+  const claimUrl = address && pem ? buildClaimUrl(window.location.origin, address, pem) : null;
 
   return (
     <MobileLayout
