@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { KeyImporter } from '@/components/KeyImporter';
 import { MobileLayout } from '@/components/MobileLayout';
 import { PoapButton } from '@/components/PoapButton';
 import { usePoapTransactions } from '@/contracts/poapContract';
@@ -14,8 +15,9 @@ import { EMBLEM_IMAGES, minEgld } from '@/config';
 const LowBalanceWarning = ({ balance }) => (
   <div className='poap-warning-banner'>
     <p>
-      ⚠️ La teva wallet té <strong>{balance !== null ? balance.toFixed(4) : '—'} xEGLD</strong>,
-      però cal un mínim de <strong>{minEgld} xEGLD</strong> per crear una classe.
+      ⚠️ La teva wallet té{' '}
+      <strong>{balance !== null ? balance.toFixed(4) : '—'} xEGLD</strong>, però cal un
+      mínim de <strong>{minEgld} xEGLD</strong> per crear una classe.
     </p>
     <Link to={RouteNamesEnum.fundsGuide} className='poap-link'>
       Com reclamar xEGLD gratuïts →
@@ -26,7 +28,7 @@ const LowBalanceWarning = ({ balance }) => (
 const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
   const { address } = useGetAccount();
   const { sendCreateEvent } = usePoapTransactions();
-  const { pem, pemAddress, savePem, isValid: pemValid } = useOrganizerPem();
+  const { pem, pemAddress, savePem, saveFromKeystore, isValid: pemValid } = useOrganizerPem();
 
   const [form, setForm] = useState({
     name: '',
@@ -36,11 +38,18 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
     endDate: '',
     maxParticipants: ''
   });
-  const [pemInput, setPemInput] = useState(pem ?? '');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+
+  // Called by KeyImporter when a valid PEM is ready (from either tab)
+  const handlePemReady = (rawPem) => {
+    setError('');
+    if (!savePem(rawPem)) {
+      setError('La clau no és vàlida. Comprova el fitxer i torna-ho a intentar.');
+    }
+  };
 
   const handleSubmit = async () => {
     setError('');
@@ -49,21 +58,21 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
       setError('Saldo insuficient. Reclama xEGLD abans de crear una classe.');
       return;
     }
-
     if (!form.name.trim()) return setError('El nom és obligatori.');
     const imageUrl = form.useCustomUrl ? form.customUrl.trim() : form.imageUrl;
-    if (!imageUrl) return setError("Selecciona o introdueix una imatge.");
+    if (!imageUrl) return setError('Selecciona o introdueix una imatge.');
     if (!form.endDate) return setError('La data de finalització és obligatòria.');
     const endTs = new Date(form.endDate).getTime();
     if (isNaN(endTs) || endTs <= Date.now()) return setError('La data ha de ser futura.');
     const maxP = parseInt(form.maxParticipants, 10);
     if (!maxP || maxP < 1) return setError('El nombre de participants ha de ser > 0.');
-
-    if (!savePem(pemInput)) return setError('La clau PEM no és vàlida.');
-
+    if (!pem || !pemValid) {
+      setError('Importa la clau del wallet abans de continuar.');
+      return;
+    }
     if (pemAddress && pemAddress !== address) {
       setError(
-        `La clau PEM correspon a ${pemAddress.slice(0, 8)}... però la wallet connectada és ${address.slice(0, 8)}...`
+        `La clau correspon a ${pemAddress.slice(0, 8)}... però la wallet connectada és ${address.slice(0, 8)}...`
       );
       return;
     }
@@ -83,8 +92,6 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
       setSubmitting(false);
     }
   };
-
-  const submitDisabled = submitting || !hasEnoughFunds;
 
   return (
     <div className='poap-form-section'>
@@ -159,31 +166,19 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
         onChange={set('maxParticipants')}
       />
 
-      <label className='poap-label'>
-        Clau PEM de la wallet
-        {pemAddress && pemValid && (
-          <span className='poap-muted'> · {pemAddress.slice(0, 8)}…</span>
-        )}
-      </label>
-      <textarea
-        className='poap-input poap-textarea'
-        rows={5}
-        placeholder={'-----BEGIN PRIVATE KEY for erd1...-----\n...\n-----END PRIVATE KEY for erd1...-----'}
-        value={pemInput}
-        onChange={(e) => setPemInput(e.target.value)}
-      />
-      <p className='poap-muted poap-warning'>
-        ⚠️ La clau PEM viatjarà al QR. Entorn únicament didàctic.
-      </p>
+      <div className='poap-key-section'>
+        <label className='poap-label'>Clau del wallet (per signar el QR)</label>
+        <KeyImporter onPemReady={handlePemReady} currentAddress={pemValid ? pemAddress : null} />
+      </div>
 
       {error && <p className='poap-error'>{error}</p>}
 
-      <PoapButton onClick={handleSubmit} disabled={submitDisabled}>
+      <PoapButton onClick={handleSubmit} disabled={submitting || !hasEnoughFunds}>
         {submitting ? 'Creant classe...' : 'Crear classe'}
       </PoapButton>
 
       {!hasEnoughFunds && (
-        <p className='poap-muted' style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+        <p className='poap-muted poap-form-hint'>
           El botó s&apos;activarà quan tinguis prou xEGLD.
         </p>
       )}
@@ -213,20 +208,16 @@ const ActiveEventPanel = ({ event, onFinalize, onShowQr }) => {
   return (
     <div className='poap-active-event'>
       <h3>Classe activa</h3>
-
       {event.emblemUrl && (
         <img className='poap-event-img' src={event.emblemUrl} alt={event.name} />
       )}
-
       <p className='poap-event-name'>{event.name}</p>
       <p className='poap-muted'>Inici: {formatDateTime(event.startDate * 1000)}</p>
       <p className='poap-muted'>Fi: {formatDateTime(event.endDate)}</p>
       <p className='poap-muted'>
         Participants: {event.currentParticipants} / {event.maxParticipants}
       </p>
-
       {error && <p className='poap-error'>{error}</p>}
-
       <PoapButton onClick={onShowQr}>Mostrar QR</PoapButton>
       <PoapButton variant='secondary' onClick={handleFinalize} disabled={finalizing}>
         {finalizing ? 'Finalitzant...' : 'Finalitzar classe'}
@@ -239,12 +230,8 @@ export const TeacherHomePage = () => {
   const navigate = useNavigate();
   const { address } = useGetAccount();
   const { event, loading: eventLoading, refresh } = useActiveEvent(address);
-  const {
-    balance,
-    loading: balanceLoading,
-    hasEnoughFunds,
-    refresh: refreshBalance
-  } = useAccountBalance(address);
+  const { balance, loading: balanceLoading, hasEnoughFunds, refresh: refreshBalance } =
+    useAccountBalance(address);
 
   const loading = eventLoading || balanceLoading;
 
@@ -261,31 +248,18 @@ export const TeacherHomePage = () => {
           <p className='poap-muted'>Carregant...</p>
         ) : (
           <>
-            {!event && !hasEnoughFunds && (
-              <LowBalanceWarning balance={balance} />
-            )}
-
+            {!event && !hasEnoughFunds && <LowBalanceWarning balance={balance} />}
             {event ? (
               <ActiveEventPanel
                 event={event}
-                onFinalize={() => {
-                  refresh();
-                  refreshBalance();
-                }}
+                onFinalize={() => { refresh(); refreshBalance(); }}
                 onShowQr={() => navigate(RouteNamesEnum.teacherQr)}
               />
             ) : (
-              <CreateEventForm
-                onSuccess={refresh}
-                hasEnoughFunds={hasEnoughFunds}
-              />
+              <CreateEventForm onSuccess={refresh} hasEnoughFunds={hasEnoughFunds} />
             )}
           </>
         )}
-
-        <PoapButton variant='secondary' onClick={handleLogout}>
-          Sortir
-        </PoapButton>
       </div>
     </MobileLayout>
   );

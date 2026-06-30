@@ -8,6 +8,7 @@ import {
   TransactionsFactoryConfig,
   UserSigner
 } from '@multiversx/sdk-core';
+import { UserWallet } from '@multiversx/sdk-wallet';
 
 import {
   GAS_PRICE,
@@ -47,11 +48,8 @@ const getContractAddress = () => Address.newFromBech32(contractAddress);
 
 export const parseEvent = (raw) => {
   if (!raw) return null;
-
   const event = raw.valueOf ? raw.valueOf() : raw;
-
   if (!event || typeof event !== 'object') return null;
-
   return {
     name: event.name?.toString?.() ?? String(event.name ?? ''),
     emblemUrl: event.emblem_url?.toString?.() ?? String(event.emblem_url ?? ''),
@@ -59,9 +57,7 @@ export const parseEvent = (raw) => {
     endDate: Number(event.end_date ?? event.endDate ?? 0),
     isStopped: Boolean(event.is_stopped ?? event.isStopped),
     maxParticipants: Number(event.max_participants ?? event.maxParticipants ?? 0),
-    currentParticipants: Number(
-      event.current_participants ?? event.currentParticipants ?? 0
-    ),
+    currentParticipants: Number(event.current_participants ?? event.currentParticipants ?? 0),
     tokenNonce: Number(event.token_nonce ?? event.tokenNonce ?? 0),
     organizer: event.organizer?.toString?.() ?? String(event.organizer ?? '')
   };
@@ -74,12 +70,9 @@ export const getActiveEvent = async (organizerAddress) => {
     function: 'getActiveEvent',
     arguments: [Address.newFromBech32(organizerAddress)]
   });
-
   if (!result || result.length === 0) return null;
-
   const first = result[0];
   if (first == null || first === '') return null;
-
   return parseEvent(first);
 };
 
@@ -90,22 +83,14 @@ export const hasClaimed = async (eventId, address) => {
     function: 'hasClaimed',
     arguments: [BigInt(eventId), Address.newFromBech32(address)]
   });
-
   if (!result || result.length === 0) return false;
-
   const value = result[0];
-  // sdk-core returns a BooleanValue; unwrap it safely
   return value?.valueOf?.() ?? Boolean(value);
-};
-
-export const createAccountFromPem = (pem) => {
-  const signer = UserSigner.fromPem(pem.trim());
-  return new Account(signer.secretKey);
 };
 
 export const getAddressFromPem = (pem) => {
   const signer = UserSigner.fromPem(pem.trim());
-  return signer.getAddress().toBech32();
+  return signer.getAddress().bech32();
 };
 
 export const validatePem = (pem) => {
@@ -117,29 +102,48 @@ export const validatePem = (pem) => {
   }
 };
 
+export const getAddressFromKeystore = (keystoreJson, password) => {
+  const secretKey = UserWallet.decryptSecretKey(keystoreJson, password);
+  const signer = new UserSigner(secretKey);
+  return signer.getAddress().bech32();
+};
+
+export const decryptKeystoreToPem = (keystoreJson, password) => {
+  let secretKey;
+  try {
+    secretKey = UserWallet.decryptSecretKey(keystoreJson, password);
+  } catch (err) {
+    if (err?.message?.includes('MAC mismatch')) {
+      throw new Error('Contrasenya incorrecta. Torna-ho a intentar.');
+    }
+    throw new Error('Fitxer de wallet no vàlid.');
+  }
+
+  const signer = new UserSigner(secretKey);
+  const address = signer.getAddress().bech32();
+  const secretHex = Buffer.from(secretKey.valueOf()).toString('hex');
+
+  // Reconstruct standard MultiversX PEM format
+  const pemBody = Buffer.from(secretHex + Buffer.from(address).toString('hex'))
+    .toString('base64')
+    .match(/.{1,64}/g)
+    .join('\n');
+
+  return `-----BEGIN PRIVATE KEY for ${address}-----\n${pemBody}\n-----END PRIVATE KEY for ${address}-----`;
+};
+
 export const sendSignedTransactions = async (signedTransactions, messages) => {
   const transactionManager = TransactionManager.getInstance();
   const sentTransactions = await transactionManager.send(signedTransactions);
-
-  if (!sentTransactions?.length) {
-    throw new Error('Transaction sending failed');
-  }
-
-  transactionManager.track(sentTransactions, {
-    transactionsDisplayInfo: messages
-  });
-
+  if (!sentTransactions?.length) throw new Error('Transaction sending failed');
+  transactionManager.track(sentTransactions, { transactionsDisplayInfo: messages });
   return sentTransactions[0].hash;
 };
 
 export const signAndSendWithProvider = async (transaction, messages) => {
   const provider = getAccountProvider();
   const signedTransactions = await provider.signTransactions([transaction]);
-
-  if (!signedTransactions?.length) {
-    throw new Error('Transaction signing failed');
-  }
-
+  if (!signedTransactions?.length) throw new Error('Transaction signing failed');
   return sendSignedTransactions(signedTransactions, messages);
 };
 
@@ -168,12 +172,9 @@ export const claimEmblemWithPem = async ({ pem, recipientAddress }) => {
   const organizerAddress = signer.getAddress();
 
   const provider = getNetworkProvider();
-
-  // Fetch on-chain nonce for the organizer account
   const accountOnNetwork = await provider.getAccount(organizerAddress);
   const nonce = BigInt(accountOnNetwork.nonce);
 
-  // Build the transaction using the factory (same pattern as other transactions)
   const factory = getFactory();
   const transaction = factory.createTransactionForExecute(organizerAddress, {
     contract: getContractAddress(),
@@ -182,20 +183,16 @@ export const claimEmblemWithPem = async ({ pem, recipientAddress }) => {
     gasLimit: GAS_LIMIT_CLAIM
   });
 
-  // Set fields the factory leaves blank
   transaction.nonce = nonce;
   transaction.chainID = chainId;
   transaction.gasPrice = BigInt(GAS_PRICE);
 
-  // Sign with the PEM key
   const serialized = transaction.serializeForSigning();
   const signature = await signer.sign(serialized);
   transaction.applySignature(signature);
 
-  // Broadcast and wait for finality
   const txHash = await provider.sendTransaction(transaction);
   await provider.awaitTransactionCompleted(txHash);
-
   return txHash;
 };
 
@@ -205,17 +202,10 @@ export const usePoapTransactions = () => {
 
   const sendCreateEvent = async ({ name, url, endDate, maxParticipants }) => {
     await refreshAccount();
-    const transaction = createEventTransaction({
-      senderAddress: address,
-      name,
-      url,
-      endDate,
-      maxParticipants
-    });
+    const transaction = createEventTransaction({ senderAddress: address, name, url, endDate, maxParticipants });
     transaction.nonce = BigInt(nonce);
     transaction.chainID = network.chainId;
     transaction.gasPrice = BigInt(GAS_PRICE);
-
     return signAndSendWithProvider(transaction, {
       processingMessage: 'Creant classe...',
       errorMessage: 'Error en crear la classe',
@@ -229,7 +219,6 @@ export const usePoapTransactions = () => {
     transaction.nonce = BigInt(nonce);
     transaction.chainID = network.chainId;
     transaction.gasPrice = BigInt(GAS_PRICE);
-
     return signAndSendWithProvider(transaction, {
       processingMessage: 'Finalitzant classe...',
       errorMessage: 'Error en finalitzar la classe',

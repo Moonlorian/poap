@@ -96,10 +96,6 @@ export const StudentHomePage = () => {
           </div>
           <EmblemGrid nfts={nfts} loading={loading} />
         </section>
-
-        <PoapButton variant='secondary' onClick={handleLogout}>
-          Sortir
-        </PoapButton>
       </div>
     </MobileLayout>
   );
