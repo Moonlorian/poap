@@ -22,6 +22,20 @@
   --poap-shadow: 0 1px 3px rgba(22, 34, 61, 0.06), 0 1px 2px rgba(22, 34, 61, 0.04);
   --poap-font-display: 'Lora', Georgia, serif;
   --poap-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --poap-max-w: 420px;
+
+  --poap-fs-body: clamp(0.92rem, 0.86rem + 0.3vw, 1rem);
+  --poap-fs-sm: clamp(0.8rem, 0.76rem + 0.2vw, 0.875rem);
+  --poap-fs-xs: clamp(0.72rem, 0.68rem + 0.18vw, 0.8rem);
+  --poap-fs-title: clamp(1.3rem, 1.15rem + 0.8vw, 1.6rem);
+  --poap-fs-section: clamp(0.95rem, 0.9rem + 0.25vw, 1.05rem);
+
+  --poap-btn-pad-y: clamp(0.7rem, 0.62rem + 0.35vw, 0.85rem);
+  --poap-btn-pad-x: clamp(1.1rem, 1rem + 0.4vw, 1.4rem);
+  --poap-btn-fs: clamp(0.88rem, 0.82rem + 0.28vw, 0.98rem);
+
+  --poap-space-content-x: clamp(1.25rem, 1.05rem + 1vw, 1.75rem);
+  --poap-space-content-y: clamp(1.4rem, 1.2rem + 1vw, 1.9rem);
 }
 
 .poap-shell {
@@ -39,7 +53,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 420px;
+  max-width: var(--poap-max-w);
   min-height: 100vh;
   background: var(--poap-surface);
   border-left: 1px solid var(--poap-border);
@@ -64,14 +78,15 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 1.75rem 1.5rem 2.5rem;
+  padding: var(--poap-space-content-y) var(--poap-space-content-x) calc(var(--poap-space-content-y) + 0.5rem);
+  font-size: var(--poap-fs-body);
 }
 
 .poap-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1.25rem 1.5rem;
+  padding: 1.1rem var(--poap-space-content-x);
   border-bottom: 1px solid var(--poap-border);
   background: var(--poap-surface);
 }
@@ -96,14 +111,14 @@
 .poap-header-text h1 {
   margin: 0;
   font-family: var(--poap-font-display);
-  font-size: 1.15rem;
+  font-size: var(--poap-fs-section);
   font-weight: 600;
   color: var(--poap-ink);
 }
 
 .poap-company {
   font-family: var(--poap-font-display);
-  font-size: 1.1rem;
+  font-size: var(--poap-fs-section);
   font-weight: 600;
   color: var(--poap-ink);
   letter-spacing: 0.01em;
@@ -131,19 +146,19 @@
 .poap-title {
   margin: 0 0 0.35rem;
   font-family: var(--poap-font-display);
-  font-size: 1.5rem;
+  font-size: var(--poap-fs-title);
   font-weight: 600;
   color: var(--poap-ink);
 }
 
 .poap-subtitle {
   margin: 0 0 1.5rem;
-  font-size: 0.9rem;
+  font-size: var(--poap-fs-sm);
   color: var(--poap-text-muted);
 }
 
 .poap-muted {
-  font-size: 0.85rem;
+  font-size: var(--poap-fs-sm);
   color: var(--poap-text-muted);
 }
 
@@ -166,7 +181,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.85rem;
+  font-size: var(--poap-fs-sm);
   color: var(--poap-ink-light);
   text-decoration: none;
   border-bottom: 1px solid var(--poap-border-strong);
@@ -181,7 +196,7 @@
   border: none;
   background: transparent;
   color: var(--poap-bronze-dark);
-  font-size: 0.8rem;
+  font-size: var(--poap-fs-xs);
   font-weight: 500;
   cursor: pointer;
   padding: 0;
@@ -192,7 +207,7 @@
 }
 
 .poap-error {
-  font-size: 0.85rem;
+  font-size: var(--poap-fs-sm);
   color: var(--poap-error);
   background: var(--poap-error-soft);
   border-radius: var(--poap-radius-sm);
@@ -201,7 +216,7 @@
 }
 
 .poap-warning {
-  font-size: 0.75rem;
+  font-size: var(--poap-fs-xs);
   color: var(--poap-bronze-dark);
   background: var(--poap-bronze-soft);
   border-radius: var(--poap-radius-sm);
@@ -215,15 +230,17 @@
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.7rem 1.25rem;
+  padding: var(--poap-btn-pad-y) var(--poap-btn-pad-x);
   margin-bottom: 0.6rem;
   border: 1px solid transparent;
   border-radius: var(--poap-radius);
   font-family: var(--poap-font-body);
-  font-size: 0.9rem;
+  font-size: var(--poap-btn-fs);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  /* Keeps tap targets comfortable on small phones regardless of content length */
+  min-height: 44px;
 }
 
 .poap-btn:disabled {
@@ -295,7 +312,7 @@
   background: var(--poap-bg);
   border: 1px solid var(--poap-border);
   border-radius: var(--poap-radius);
-  font-size: 0.85rem;
+  font-size: var(--poap-fs-sm);
   line-height: 1.45;
 }
 
@@ -351,7 +368,7 @@
 .poap-guide-step-header h4 {
   margin: 0;
   font-family: var(--poap-font-display);
-  font-size: 0.95rem;
+  font-size: var(--poap-fs-sm);
   font-weight: 600;
   color: var(--poap-ink);
 }
@@ -369,7 +386,6 @@
   gap: 0.4rem;
   width: 100%;
   min-height: 140px;
-  padding: 1rem;
   background: repeating-linear-gradient(
     45deg,
     var(--poap-ink-soft) 0,
@@ -422,7 +438,7 @@
 .poap-section > h3 {
   margin: 0 0 0.75rem;
   font-family: var(--poap-font-display);
-  font-size: 1rem;
+  font-size: var(--poap-fs-section);
   font-weight: 600;
   color: var(--poap-ink);
 }
@@ -439,7 +455,7 @@
 }
 
 .poap-section-title {
-  font-size: 0.85rem;
+  font-size: var(--poap-fs-sm);
   font-weight: 600;
   color: var(--poap-ink);
   margin: 0 0 0.5rem;
@@ -461,13 +477,13 @@
   width: auto;
   flex: 0 0 auto;
   margin-bottom: 0;
-  padding: 0.6rem 1rem;
+  padding: var(--poap-btn-pad-y) 1rem;
   white-space: nowrap;
 }
 
 .poap-label {
   display: block;
-  font-size: 0.8rem;
+  font-size: var(--poap-fs-xs);
   font-weight: 600;
   color: var(--poap-ink);
   margin: 1rem 0 0.35rem;
@@ -477,14 +493,18 @@
 .poap-form input[type],
 .poap-textarea {
   width: 100%;
-  padding: 0.6rem 0.75rem;
+  padding: 0.65rem 0.75rem;
   border: 1px solid var(--poap-border-strong);
   border-radius: var(--poap-radius-sm);
   background: var(--poap-surface);
   font-family: var(--poap-font-body);
-  font-size: 0.875rem;
+  font-size: var(--poap-fs-sm);
   color: var(--poap-text);
   box-sizing: border-box;
+  /* Prevents iOS Safari auto-zoom-on-focus, which is the #1 cause of
+     "scale breaks on real phones" — iOS zooms in if an input's
+     computed font-size is below 16px. */
+  font-size: max(16px, var(--poap-fs-sm));
 }
 
 .poap-input:focus,
@@ -498,7 +518,6 @@
 .poap-textarea {
   resize: vertical;
   font-family: var(--poap-font-body);
-  font-size: 0.78rem;
 }
 
 .poap-form-section {
@@ -509,7 +528,7 @@
 .poap-form-section h3 {
   margin: 0 0 0.25rem;
   font-family: var(--poap-font-display);
-  font-size: 1.05rem;
+  font-size: var(--poap-fs-section);
   font-weight: 600;
   color: var(--poap-ink);
 }
@@ -540,7 +559,8 @@
 
 .poap-emblem-option.selected {
   border-color: var(--poap-bronze);
-  box-shadow: 0 0 0 2px var(--poap-bronze-soft);
+  border-width: 4px;
+  box-shadow: 0 0 0 4px var(--poap-bronze-soft);
 }
 
 .poap-active-event {
@@ -551,7 +571,7 @@
 .poap-active-event h3 {
   margin: 0 0 0.75rem;
   font-family: var(--poap-font-display);
-  font-size: 1.05rem;
+  font-size: var(--poap-fs-section);
   font-weight: 600;
   color: var(--poap-ink);
 }
@@ -569,7 +589,7 @@
 }
 
 .poap-event-name {
-  font-size: 0.95rem;
+  font-size: var(--poap-fs-body);
   font-weight: 600;
   color: var(--poap-ink);
   margin: 0 0 0.35rem;
@@ -622,7 +642,7 @@
 .poap-claim-error h3 {
   margin: 0.25rem 0;
   font-family: var(--poap-font-display);
-  font-size: 1.2rem;
+  font-size: clamp(1.1rem, 1rem + 0.5vw, 1.3rem);
   color: var(--poap-ink);
 }
 
@@ -669,7 +689,7 @@
 }
 
 .poap-details dt {
-  font-size: 0.7rem;
+  font-size: var(--poap-fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--poap-text-muted);
@@ -677,7 +697,7 @@
 }
 
 .poap-details dd {
-  font-size: 0.85rem;
+  font-size: var(--poap-fs-sm);
   font-weight: 600;
   color: var(--poap-ink);
   margin: 0.15rem 0 0;
@@ -736,7 +756,7 @@
 }
 
 .poap-emblem-name {
-  font-size: 0.8rem;
+  font-size: var(--poap-fs-sm);
   font-weight: 600;
   color: var(--poap-ink);
   margin: 0;
@@ -744,7 +764,7 @@
 }
 
 .poap-emblem-date {
-  font-size: 0.7rem;
+  font-size: var(--poap-fs-xs);
   color: var(--poap-text-muted);
   margin: 0.15rem 0 0;
 }
@@ -760,11 +780,11 @@
   gap: 0.4rem;
   padding: 0.85rem 1rem;
   margin-bottom: 1.25rem;
-  background: var(--poap-bronze-soft);
-  border: 1px solid var(--poap-bronze);
+  background: var(--poap-error-soft);
+  border: 1px solid var(--poap-error);
   border-radius: var(--poap-radius);
-  font-size: 0.85rem;
-  color: var(--poap-text);
+  font-size: var(--poap-fs-sm);
+  color: var(--poap-error);
 }
 
 .poap-warning-banner p {
@@ -772,136 +792,28 @@
 }
 
 .poap-warning-banner .poap-link {
-  font-size: 0.82rem;
-}
-
-.poap-key-section {
-  display: flex;
-  flex-direction: column;
-  margin-top: 1.1rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid var(--poap-border);
+  font-size: var(--poap-fs-sm);
 }
 
 .poap-key-importer {
-  display: flex;
-  flex-direction: column;
-  margin-top: 0.5rem;
-}
-
-.poap-key-current {
-  margin: 0 0 0.6rem;
-  padding: 0.5rem 0.7rem;
-  background: var(--poap-success-soft);
-  border-radius: var(--poap-radius-sm);
-  font-size: 0.8rem;
-  color: var(--poap-success);
-}
-
-.poap-mono {
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  font-size: 0.78rem;
-}
-
-.poap-tabs {
-  display: flex;
-  gap: 0.4rem;
-  margin-bottom: 0.85rem;
-  border-bottom: 1px solid var(--poap-border);
-}
-
-.poap-tab {
-  flex: 1;
-  padding: 0.55rem 0.5rem;
-  border: none;
-  background: transparent;
-  font-family: var(--poap-font-body);
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--poap-text-muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: color 0.15s ease, border-color 0.15s ease;
-}
-
-.poap-tab:hover {
-  color: var(--poap-ink);
-}
-
-.poap-tab.active {
-  color: var(--poap-ink);
-  font-weight: 600;
-  border-bottom-color: var(--poap-bronze);
-}
-
-.poap-tab-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.poap-tab-panel .poap-btn {
-  margin-bottom: 0;
-}
-
-.poap-tab-panel .poap-textarea {
-  margin-top: 0.2rem;
-}
-
-.poap-form-hint {
-  margin-top: 0.5rem;
-  text-align: center;
-}
-
-.poap-warning-banner {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding: 0.85rem 1rem;
-  margin-bottom: 1.25rem;
-  background: var(--poap-bronze-soft);
-  border: 1px solid var(--poap-bronze);
-  border-radius: var(--poap-radius);
-  font-size: 0.85rem;
-  color: var(--poap-text);
-}
-
-.poap-warning-banner p {
-  margin: 0;
-}
-
-.poap-warning-banner .poap-link {
-  font-size: 0.82rem;
-}
-
-.poap-key-section {
   display: flex;
   flex-direction: column;
   margin-top: 1.1rem;
   margin-bottom: 1.1rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid var(--poap-border);
-}
-
-.poap-key-importer {
-  display: flex;
-  flex-direction: column;
-  margin-top: 0.5rem;
 }
 
 .poap-key-current {
-  margin: 1.1rem 0.6rem;
+  margin: 0rem 0.6rem;
   padding: 0.5rem 0.7rem;
   background: var(--poap-success-soft);
   border-radius: var(--poap-radius-sm);
-  font-size: 0.8rem;
+  font-size: var(--poap-fs-sm);
   color: var(--poap-success);
 }
 
 .poap-mono {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  font-size: 0.78rem;
+  font-size: var(--poap-fs-xs);
 }
 
 .poap-tabs {
@@ -917,13 +829,14 @@
   border: none;
   background: transparent;
   font-family: var(--poap-font-body);
-  font-size: 0.82rem;
+  font-size: var(--poap-fs-sm);
   font-weight: 500;
   color: var(--poap-text-muted);
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   transition: color 0.15s ease, border-color 0.15s ease;
+  min-height: 40px;
 }
 
 .poap-tab:hover {
@@ -934,6 +847,11 @@
   color: var(--poap-ink);
   font-weight: 600;
   border-bottom-color: var(--poap-bronze);
+}
+
+.poap-drop-panel {
+  display: flex;
+  flex-direction: row;
 }
 
 .poap-tab-panel {
@@ -968,10 +886,11 @@
   padding: 0.6rem 0.75rem;
   border-radius: var(--poap-radius-sm);
   font-family: var(--poap-font-body);
-  font-size: 0.82rem;
+  font-size: var(--poap-fs-sm);
   text-align: left;
   cursor: pointer;
   box-sizing: border-box;
+  min-height: 44px;
 }
 
 .poap-file-row--empty {
@@ -1017,7 +936,7 @@
   border: 1px solid var(--poap-border-strong);
   border-radius: var(--poap-radius-sm);
   background: transparent;
-  font-size: 0.72rem;
+  font-size: var(--poap-fs-xs);
   font-weight: 600;
   color: var(--poap-bronze-dark);
   cursor: pointer;
@@ -1039,7 +958,7 @@
 
 .poap-key-disclaimer {
   margin: 0.75rem 0 0;
-  font-size: 0.72rem;
+  font-size: var(--poap-fs-xs);
   color: var(--poap-text-muted);
   text-align: center;
 }

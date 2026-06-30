@@ -27,8 +27,10 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
           setError('El fitxer no és un wallet JSON vàlid de MultiversX.');
           return;
         }
+
         setKeystoreJson(json);
         setKeystoreFilename(file.name);
+        
       } catch {
         setError('No s\'ha pogut llegir el fitxer JSON.');
       }
@@ -44,6 +46,19 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
     if (fileRef.current) fileRef.current.value = '';
   };
 
+  const FeedbackMessage = () => {
+    return (
+      <>
+        {currentAddress && (
+          <p className='poap-key-current'>
+            Clau carregada: <span className='poap-mono'>{currentAddress.slice(0, 10)}…</span>
+          </p>
+        )}
+        {error && <p className='poap-error'>{error}</p>}
+      </>
+    )
+  };
+
   const handleKeystoreSubmit = async () => {
     setError('');
     if (!keystoreJson) return setError('Selecciona un fitxer de wallet.');
@@ -53,10 +68,13 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
     try {
       const { decryptKeystoreToPem } = await import('@/contracts/poapContract');
       const pem = decryptKeystoreToPem(keystoreJson, password);
+
       onPemReady(pem);
       setPassword('');
+
     } catch (err) {
       setError(err?.message ?? 'Error desxifrant el wallet.');
+
     } finally {
       setLoading(false);
     }
@@ -64,8 +82,10 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
 
   const handlePemFileChange = (e) => {
     setError('');
+
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = (ev) => setPemText(ev.target.result ?? '');
     reader.readAsText(file);
@@ -167,7 +187,7 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
               </>
             )}
           </div>
-        </div>
+        </div>      
       )}
 
       {tab === 'pem' && (
@@ -183,7 +203,7 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
             style={{ display: 'none' }}
             onChange={handlePemFileChange}
           />
-
+        
           <div className='poap-key-fieldgroup'>
             <button
               type='button'
@@ -209,15 +229,9 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
               Usar aquest PEM
             </PoapButton>
           </div>
-        </div>
+        </div>        
       )}
-
-      {error && <p className='poap-error'>{error}</p>}
-      {currentAddress && (
-        <p className='poap-key-current'>
-          ✅ Clau carregada: <span className='poap-mono'>{currentAddress.slice(0, 10)}…</span>
-        </p>
-      )}
+          <FeedbackMessage/>
     </div>
   );
 };

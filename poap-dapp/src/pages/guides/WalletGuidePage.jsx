@@ -21,33 +21,33 @@ const STEPS = [
         i clica el botó <strong>&quot;Create a new wallet&quot;</strong>.
       </>
     ),
-    screenshot: 'Pàgina d\'inici de devnet-wallet.multiversx.com amb el botó "Create a new wallet"'
+    screenshot: '/guide_create/guide1.png'
   },
   {
     title: '2. Llegeix l’avís de seguretat',
     text: 'La wallet mostrarà un avís important sobre com guardar les teves credencials. Llegeix-lo i clica "Continue".',
-    screenshot: 'Pantalla d\'avís de seguretat amb el botó "Continue"'
+    screenshot: '/guide_create/guide2.png'
   },
   {
     title: '3. Guarda la teva frase secreta',
     text: (
       <>
         Apareixeran <strong>24 paraules numerades</strong>: és la teva Frase
-        Secreta (Secret Phrase). Només es mostra aquesta vegada — copia-la o
+        Secreta (Secret Phrase). Només es mostra aquesta vegada, copia-la o
         escriu-la en un lloc segur abans de continuar.
       </>
     ),
-    screenshot: 'Pantalla amb les 24 paraules de la Frase Secreta numerades'
+    screenshot: '/guide_create/guide3.png'
   },
   {
     title: '4. Confirma la frase',
     text: 'Et demanarà introduir algunes de les paraules, en l\u2019ordre indicat, per comprovar que les has desat correctament.',
-    screenshot: 'Pantalla de confirmació demanant paraules concretes de la frase'
+    screenshot: '/guide_create/guide4.png'
   },
   {
     title: '5. Estableix una contrasenya',
     text: 'Tria una contrasenya per protegir el fitxer de la teva wallet (keystore) en aquest dispositiu.',
-    screenshot: 'Formulari per establir una contrasenya per al keystore'
+    screenshot: '/guide_create/guide5.png'
   },
   {
     title: '6. Descarrega el fitxer keystore',
@@ -58,7 +58,7 @@ const STEPS = [
         Guarda'l bé, no el comparteixis amb ningú.
       </>
     ),
-    screenshot: 'Botó de descàrrega del fitxer keystore .json'
+    screenshot: '/guide_create/guide6.png'
   },
   {
     title: '7. Torna a l’aplicació i inicia sessió',
@@ -101,10 +101,7 @@ export const WalletGuidePage = () => (
             </div>
             <p className='poap-guide-step-text'>{step.text}</p>
             {step.screenshot && (
-              <div className='poap-screenshot'>
-                <span className='poap-screenshot-icon' aria-hidden='true'>🖼</span>
-                <p className='poap-screenshot-label'>{step.screenshot}</p>
-              </div>
+               <img className='poap-screenshot' src={step.screenshot} />
             )}
           </li>
         ))}

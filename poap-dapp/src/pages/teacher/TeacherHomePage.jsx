@@ -15,9 +15,7 @@ import { EMBLEM_IMAGES, minEgld } from '@/config';
 const LowBalanceWarning = ({ balance }) => (
   <div className='poap-warning-banner'>
     <p>
-      ⚠️ La teva wallet té{' '}
-      <strong>{balance !== null ? balance.toFixed(4) : '—'} xEGLD</strong>, però cal un
-      mínim de <strong>{minEgld} xEGLD</strong> per crear una classe.
+      És necessari reclamar tokens en aquesta wallet per a poder crear una classe.
     </p>
     <Link to={RouteNamesEnum.fundsGuide} className='poap-link'>
       Com reclamar xEGLD gratuïts →
@@ -29,7 +27,6 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
   const { address } = useGetAccount();
   const { sendCreateEvent } = usePoapTransactions();
   const { pem, pemAddress, savePem, saveFromKeystore, isValid: pemValid } = useOrganizerPem();
-
   const [form, setForm] = useState({
     name: '',
     imageUrl: EMBLEM_IMAGES?.[0]?.url ?? '',
@@ -60,16 +57,21 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
     }
     if (!form.name.trim()) return setError('El nom és obligatori.');
     const imageUrl = form.useCustomUrl ? form.customUrl.trim() : form.imageUrl;
+
     if (!imageUrl) return setError('Selecciona o introdueix una imatge.');
     if (!form.endDate) return setError('La data de finalització és obligatòria.');
+
     const endTs = new Date(form.endDate).getTime();
     if (isNaN(endTs) || endTs <= Date.now()) return setError('La data ha de ser futura.');
+
     const maxP = parseInt(form.maxParticipants, 10);
+
     if (!maxP || maxP < 1) return setError('El nombre de participants ha de ser > 0.');
     if (!pem || !pemValid) {
       setError('Importa la clau del wallet abans de continuar.');
       return;
     }
+
     if (pemAddress && pemAddress !== address) {
       setError(
         `La clau correspon a ${pemAddress.slice(0, 8)}... però la wallet connectada és ${address.slice(0, 8)}...`
@@ -101,9 +103,27 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
       <input
         className='poap-input'
         type='text'
-        placeholder='Ex: Matemàtiques — 12 juny'
+        placeholder='Ex: Matemàtiques, 12 juny'
         value={form.name}
         onChange={set('name')}
+      />
+
+      <label className='poap-label'>Data de finalització</label>
+      <input
+        className='poap-input'
+        type='datetime-local'
+        value={form.endDate}
+        onChange={set('endDate')}
+      />
+
+      <label className='poap-label'>Nombre màxim de participants</label>
+      <input
+        className='poap-input'
+        type='number'
+        min='1'
+        placeholder='30'
+        value={form.maxParticipants}
+        onChange={set('maxParticipants')}
       />
 
       <label className='poap-label'>Imatge de l&apos;emblema</label>
@@ -148,40 +168,13 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
         </>
       )}
 
-      <label className='poap-label'>Data de finalització</label>
-      <input
-        className='poap-input'
-        type='datetime-local'
-        value={form.endDate}
-        onChange={set('endDate')}
-      />
-
-      <label className='poap-label'>Nombre màxim de participants</label>
-      <input
-        className='poap-input'
-        type='number'
-        min='1'
-        placeholder='30'
-        value={form.maxParticipants}
-        onChange={set('maxParticipants')}
-      />
-
-      <div className='poap-key-section'>
-        <label className='poap-label'>Clau del wallet (per signar el QR)</label>
-        <KeyImporter onPemReady={handlePemReady} currentAddress={pemValid ? pemAddress : null} />
-      </div>
+      <KeyImporter onPemReady={handlePemReady} currentAddress={pemValid ? pemAddress : null} />
 
       {error && <p className='poap-error'>{error}</p>}
 
       <PoapButton onClick={handleSubmit} disabled={submitting || !hasEnoughFunds}>
         {submitting ? 'Creant classe...' : 'Crear classe'}
       </PoapButton>
-
-      {!hasEnoughFunds && (
-        <p className='poap-muted poap-form-hint'>
-          El botó s&apos;activarà quan tinguis prou xEGLD.
-        </p>
-      )}
     </div>
   );
 };

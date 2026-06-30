@@ -8,62 +8,49 @@ const FAUCET_URL = faucetUrl ?? 'https://devnet-extras.multiversx.com/faucet';
 
 const STEPS = [
   {
-    title: '1. Copia la teva adreça de wallet',
-    text: (
-      <>
-        A la pantalla del professor veuràs la teva adreça, que comença per{' '}
-        <code>erd1…</code>. Copia-la — la necessitaràs al faucet.
-        Si no la veus, torna enrere i inicia sessió amb la teva wallet.
-      </>
-    ),
-    screenshot: 'Panell del professor amb l\'adreça erd1... visible i el botó de copiar'
-  },
-  {
-    title: '2. Obre el faucet de Devnet',
+    title: '1. Obre el faucet de Devnet',
     text: (
       <>
         El faucet és un servei gratuït que envia xEGLD de prova a la teva wallet.
-        Clica l&apos;enllaç de baix per obrir-lo en una nova pestanya.
+        Clica l&apos;enllaç a&apos;inici de la guia per obrir-lo en una nova pestanya.
       </>
     ),
-    screenshot: 'Pàgina principal del Faucet MultiversX Devnet amb el camp d\'adreça buit'
+    screenshot: null
   },
   {
-    title: '3. Enganxa la teva adreça',
+    title: '2. Activa el faucet',
     text: (
       <>
-        Al camp <strong>&quot;Wallet Address&quot;</strong> del faucet, enganxa
-        l&apos;adreça <code>erd1…</code> que has copiat al pas 1.
-        Assegura&apos;t que no hi ha espais ni caràcters extres.
+        Al iniciar sessio correctament, veuras un menu sota a l&apos;esquerra, 
+        anomenat <strong>Faucet</strong>
       </>
     ),
-    screenshot: 'Camp "Wallet Address" del faucet amb una adreça erd1... enganxada'
+    screenshot: '/guide_claim/guide1.png'
   },
   {
-    title: '4. Clica "Request Tokens"',
+    title: '3. Clica "Request Tokens"',
     text: (
       <>
         Prem el botó <strong>&quot;Request Tokens&quot;</strong>. El faucet
-        t&apos;enviarà <strong>5 xEGLD de prova</strong> a la teva wallet.
+        t&apos;enviarà <strong>5 xEGLD</strong> a la teva wallet.
         Cada adreça pot demanar fons una vegada cada 24 hores.
       </>
     ),
-    screenshot: 'Botó "Request Tokens" del faucet just després d\'introduir l\'adreça'
+    screenshot: '/guide_claim/guide2.png'
   },
   {
-    title: '5. Espera la confirmació',
+    title: '4. Espera la confirmació',
     text: (
       <>
-        El faucet mostrarà un missatge de confirmació amb l&apos;ID de la
-        transacció. La blockchain Devnet sol confirmar en{' '}
+        El faucet mostrarà un missatge de confirmació. La multiversx sol confirmar en{' '}
         <strong>6 segons</strong> aproximadament. Pots clicar l&apos;ID per
         veure la transacció a l&apos;Explorer.
       </>
     ),
-    screenshot: 'Missatge de confirmació del faucet amb l\'ID de transacció i un enllaç a l\'Explorer'
+    screenshot: null
   },
   {
-    title: '6. Torna i crea la classe',
+    title: '5. Torna i crea la classe',
     text: (
       <>
         Un cop confirmada la transacció, torna a aquesta aplicació i clica{' '}
@@ -108,12 +95,7 @@ export const FundsGuidePage = () => {
               </div>
               <p className='poap-guide-step-text'>{step.text}</p>
               {step.screenshot && (
-                <div className='poap-screenshot'>
-                  <span className='poap-screenshot-icon' aria-hidden='true'>
-                    🖼
-                  </span>
-                  <p className='poap-screenshot-label'>{step.screenshot}</p>
-                </div>
+                <img className='poap-screenshot' src={step.screenshot} />
               )}
             </li>
           ))}
