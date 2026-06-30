@@ -1,15 +1,6 @@
 import { useRef, useState } from 'react';
 import { PoapButton } from '@/components/PoapButton';
 
-/**
- * KeyImporter — allows the teacher to provide their signing key via:
- *   - PEM file / paste
- *   - JSON keystore file + password (MultiversX Web Wallet format)
- *
- * Props:
- *   onPemReady(pem: string) — called with the final PEM when import succeeds
- *   currentAddress: string | null — address derived from current key (for display)
- */
 export const KeyImporter = ({ onPemReady, currentAddress }) => {
   const [tab, setTab] = useState('keystore'); // 'keystore' | 'pem'
   const [pemText, setPemText] = useState('');
@@ -19,8 +10,7 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const fileRef = useRef(null);
-
-  // ── Keystore tab ──────────────────────────────────────────────────────────
+  const pemFileRef = useRef(null);
 
   const handleFileChange = (e) => {
     setError('');
@@ -46,6 +36,14 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
     reader.readAsText(file);
   };
 
+  const handleClearFile = () => {
+    setKeystoreJson(null);
+    setKeystoreFilename('');
+    setPassword('');
+    setError('');
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
   const handleKeystoreSubmit = async () => {
     setError('');
     if (!keystoreJson) return setError('Selecciona un fitxer de wallet.');
@@ -64,8 +62,6 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
     }
   };
 
-  // ── PEM tab ───────────────────────────────────────────────────────────────
-
   const handlePemFileChange = (e) => {
     setError('');
     const file = e.target.files?.[0];
@@ -81,16 +77,8 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
     onPemReady(pemText.trim());
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
-
   return (
     <div className='poap-key-importer'>
-      {currentAddress && (
-        <p className='poap-key-current'>
-          ✅ Clau carregada: <span className='poap-mono'>{currentAddress.slice(0, 10)}…</span>
-        </p>
-      )}
-
       <div className='poap-tabs'>
         <button
           type='button'
@@ -119,8 +107,8 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
               className='poap-link'
             >
               MultiversX Web Wallet
-            </a>{' '}
-            i introdueix la teva contrasenya.
+            </a>
+            .
           </p>
 
           <input
@@ -130,29 +118,55 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
             style={{ display: 'none' }}
             onChange={handleFileChange}
           />
-          <PoapButton variant='secondary' onClick={() => fileRef.current?.click()}>
-            {keystoreFilename || 'Seleccionar fitxer .json'}
-          </PoapButton>
 
-          {keystoreJson && (
-            <>
-              <label className='poap-label' style={{ marginTop: '0.75rem' }}>
-                Contrasenya del wallet
-              </label>
-              <input
-                className='poap-input'
-                type='password'
-                placeholder='Contrasenya'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleKeystoreSubmit()}
-                autoComplete='current-password'
-              />
-              <PoapButton onClick={handleKeystoreSubmit} disabled={loading}>
-                {loading ? 'Desxifrant...' : 'Importar wallet'}
-              </PoapButton>
-            </>
-          )}
+          <div className='poap-key-fieldgroup'>
+            {!keystoreJson ? (
+              <button
+                type='button'
+                className='poap-file-row poap-file-row--empty'
+                onClick={() => fileRef.current?.click()}
+              >
+                <span className='poap-file-row-icon' aria-hidden='true'>📄</span>
+                <span className='poap-file-row-text'>Selecciona el fitxer .json</span>
+              </button>
+            ) : (
+              <div className='poap-file-row poap-file-row--filled'>
+                <span className='poap-file-row-icon' aria-hidden='true'>📄</span>
+                <span className='poap-file-row-name' title={keystoreFilename}>
+                  {keystoreFilename}
+                </span>
+                <button
+                  type='button'
+                  className='poap-file-row-change'
+                  onClick={handleClearFile}
+                >
+                  Canviar
+                </button>
+              </div>
+            )}
+
+            {keystoreJson && (
+              <>
+                <input
+                  className='poap-input'
+                  type='password'
+                  placeholder='Contrasenya del wallet'
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleKeystoreSubmit()}
+                  autoComplete='current-password'
+                />
+                <PoapButton
+                  variant='secondary'
+                  onClick={handleKeystoreSubmit}
+                  disabled={loading}
+                  className='poap-btn-block'
+                >
+                  {loading ? 'Desxifrant...' : 'Importar wallet'}
+                </PoapButton>
+              </>
+            )}
+          </div>
         </div>
       )}
 
@@ -163,35 +177,47 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
           </p>
 
           <input
+            ref={pemFileRef}
             type='file'
             accept='.pem,text/plain'
             style={{ display: 'none' }}
-            id='pem-file-input'
             onChange={handlePemFileChange}
           />
-          <PoapButton
-            variant='secondary'
-            onClick={() => document.getElementById('pem-file-input')?.click()}
-          >
-            Seleccionar fitxer .pem
-          </PoapButton>
 
-          <textarea
-            className='poap-input poap-textarea'
-            rows={5}
-            placeholder={'-----BEGIN PRIVATE KEY for erd1...-----\n...\n-----END PRIVATE KEY for erd1...-----'}
-            value={pemText}
-            onChange={(e) => setPemText(e.target.value)}
-          />
-          <PoapButton onClick={handlePemSubmit}>Usar aquest PEM</PoapButton>
+          <div className='poap-key-fieldgroup'>
+            <button
+              type='button'
+              className='poap-file-row poap-file-row--empty'
+              onClick={() => pemFileRef.current?.click()}
+            >
+              <span className='poap-file-row-icon' aria-hidden='true'>📄</span>
+              <span className='poap-file-row-text'>Selecciona el fitxer .pem (opcional)</span>
+            </button>
+
+            <textarea
+              className='poap-input poap-textarea'
+              rows={4}
+              placeholder={'-----BEGIN PRIVATE KEY for erd1...-----\n...\n-----END PRIVATE KEY for erd1...-----'}
+              value={pemText}
+              onChange={(e) => setPemText(e.target.value)}
+            />
+            <PoapButton
+              variant='secondary'
+              onClick={handlePemSubmit}
+              className='poap-btn-block'
+            >
+              Usar aquest PEM
+            </PoapButton>
+          </div>
         </div>
       )}
 
       {error && <p className='poap-error'>{error}</p>}
-
-      <p className='poap-muted poap-warning' style={{ marginTop: '0.5rem' }}>
-        ⚠️ La clau viatjarà al QR de la classe. Entorn únicament didàctic.
-      </p>
+      {currentAddress && (
+        <p className='poap-key-current'>
+          ✅ Clau carregada: <span className='poap-mono'>{currentAddress.slice(0, 10)}…</span>
+        </p>
+      )}
     </div>
   );
 };

@@ -102,34 +102,57 @@ export const validatePem = (pem) => {
   }
 };
 
+const bytesToHex = (bytes) =>
+  Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+
+const bytesToBase64 = (bytes) => {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+};
+
 export const getAddressFromKeystore = (keystoreJson, password) => {
-  const secretKey = UserWallet.decryptSecretKey(keystoreJson, password);
+  const secretKey = decryptKeystoreSecretKey(keystoreJson, password);
   const signer = new UserSigner(secretKey);
   return signer.getAddress().bech32();
 };
 
-export const decryptKeystoreToPem = (keystoreJson, password) => {
-  let secretKey;
+const decryptKeystoreSecretKey = (keystoreJson, password) => {
   try {
-    secretKey = UserWallet.decryptSecretKey(keystoreJson, password);
+    if (keystoreJson.kind === 'mnemonic') {
+      const mnemonic = UserWallet.decryptMnemonic(keystoreJson, password);
+      return mnemonic.deriveKey(0);
+    }
+    return UserWallet.decryptSecretKey(keystoreJson, password);
   } catch (err) {
     if (err?.message?.includes('MAC mismatch')) {
       throw new Error('Contrasenya incorrecta. Torna-ho a intentar.');
     }
-    throw new Error('Fitxer de wallet no vàlid.');
+    throw new Error(`Error desxifrant el wallet: ${err?.message ?? err}`);
   }
+};
 
-  const signer = new UserSigner(secretKey);
-  const address = signer.getAddress().bech32();
-  const secretHex = Buffer.from(secretKey.valueOf()).toString('hex');
+export const decryptKeystoreToPem = (keystoreJson, password) => {
+  const secretKey = decryptKeystoreSecretKey(keystoreJson, password);
+  let userAddress;
+  try {
+    const signer = new UserSigner(secretKey);
+    userAddress = signer.getAddress();
+  } catch (signerErr) {
+    userAddress = secretKey.generatePublicKey().toAddress();
+  }
+  const bech32 = userAddress.bech32();
 
-  // Reconstruct standard MultiversX PEM format
-  const pemBody = Buffer.from(secretHex + Buffer.from(address).toString('hex'))
-    .toString('base64')
-    .match(/.{1,64}/g)
-    .join('\n');
+  const secretHex = bytesToHex(secretKey.valueOf());
+  const pubkeyHex = bytesToHex(userAddress.pubkey());
+  const combinedHexAsText = secretHex + pubkeyHex; // 128-char ascii string
 
-  return `-----BEGIN PRIVATE KEY for ${address}-----\n${pemBody}\n-----END PRIVATE KEY for ${address}-----`;
+  const asciiBytes = new TextEncoder().encode(combinedHexAsText);
+  const pemBody = bytesToBase64(asciiBytes).match(/.{1,64}/g).join('\n');
+
+  return `-----BEGIN PRIVATE KEY for ${bech32}-----\n${pemBody}\n-----END PRIVATE KEY for ${bech32}-----`;
 };
 
 export const sendSignedTransactions = async (signedTransactions, messages) => {
