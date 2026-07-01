@@ -210,6 +210,7 @@ const ActiveEventPanel = ({ event, onFinalize, onShowQr }) => {
       <p className='poap-muted'>
         Participants: {event.currentParticipants} / {event.maxParticipants}
       </p>
+      <br></br>
       {error && <p className='poap-error'>{error}</p>}
       <PoapButton onClick={onShowQr}>Mostrar QR</PoapButton>
       <PoapButton variant='secondary' onClick={handleFinalize} disabled={finalizing}>

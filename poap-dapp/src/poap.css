@@ -566,6 +566,7 @@
 .poap-active-event {
   display: flex;
   flex-direction: column;
+  margin: auto;
 }
 
 .poap-active-event h3 {
