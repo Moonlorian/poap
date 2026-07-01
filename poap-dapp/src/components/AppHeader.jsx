@@ -7,7 +7,7 @@ export const AppHeader = ({ title, showBack, onBack }) => (
         ←
       </button>
     ) : (
-      <div className='poap-header-icon'>☁</div>
+      <img className='poap-header-icon' src="/favicon.ico"></img>
     )}
     <div className='poap-header-text'>
       {title ? <h1>{title}</h1> : <span className='poap-company'>{companyName}</span>}

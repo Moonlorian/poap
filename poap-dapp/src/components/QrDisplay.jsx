@@ -28,9 +28,6 @@ export const QrDisplay = ({ value, title }) => {
       <PoapButton variant='secondary' onClick={handleDownload}>
         Descarrega PNG
       </PoapButton>
-      <p className='poap-warning'>
-        Aquest QR conté la clau del wallet del professor. Només per a ús didàctic.
-      </p>
     </div>
   );
 };
