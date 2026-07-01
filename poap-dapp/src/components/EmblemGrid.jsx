@@ -1,4 +1,5 @@
 import { formatDate } from '@/utils/dates';
+import { getEmblemDate } from '@/utils/emblemDates';
 
 export const EmblemGrid = ({ nfts, loading }) => {
   if (loading) {
@@ -12,23 +13,19 @@ export const EmblemGrid = ({ nfts, loading }) => {
   return (
     <div className='poap-emblem-grid'>
       {nfts.map((nft) => {
-        console.log(JSON.stringify(nft));
         const imageUrl = nft.url ?? 'https://devnet-media.multiversx.com/nfts/thumbnail/default.png';
         const name = nft.name ?? 'Emblema';
-        // Devnet API returns timestamp already in milliseconds
-        const timestamp = nft.timestamp ? Number(nft.timestamp) : null;
+        const claimedAt = getEmblemDate(nft.identifier);
 
         return (
           <article key={nft.identifier} className='poap-emblem-card'>
             <div className='poap-emblem-image'>
-              {imageUrl ? (
-                <img src={imageUrl} alt={name} />
-              ) : (
-                <div className='poap-emblem-placeholder'>🏅</div>
-              )}
+              <img src={imageUrl} alt={name} />
             </div>
             <p className='poap-emblem-name'>{name}</p>
-            <p className='poap-emblem-date'>{formatDate(timestamp)}</p>
+            <p className='poap-emblem-date'>
+              {claimedAt ? formatDate(claimedAt) : 'Data desconeguda'}
+            </p>
           </article>
         );
       })}

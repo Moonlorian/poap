@@ -3,9 +3,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MobileLayout } from '@/components/MobileLayout';
 import { PoapButton } from '@/components/PoapButton';
 import { claimEmblemWithPem, getActiveEvent } from '@/contracts/poapContract';
+import { buildNftIdentifier, recordEmblemDate } from '@/utils/emblemDates';
 import { useGetAccount } from '@/lib';
 import { RouteNamesEnum } from '@/routes/routeNames';
 import { parseClaimParams } from '@/utils/dates';
+import { tokenId } from '@/config';
 
 const STATUS = { IDLE: 'idle', CLAIMING: 'claiming', SUCCESS: 'success', ERROR: 'error' };
 
@@ -40,6 +42,11 @@ export const ClaimPage = () => {
         setEvent(activeEvent);
 
         await claimEmblemWithPem({ pem, recipientAddress: address });
+        if (activeEvent?.tokenNonce != null) {
+          const identifier = buildNftIdentifier(tokenId, activeEvent.tokenNonce);
+          recordEmblemDate(identifier, Date.now());
+        }
+
         setStatus(STATUS.SUCCESS);
       } catch (err) {
         claimed.current = false;
