@@ -38,6 +38,11 @@
   --poap-space-content-y: clamp(1.4rem, 1.2rem + 1vw, 1.9rem);
 }
 
+br {
+  height: 0px;
+  margin-bottom: 20px;
+}
+
 .poap-shell {
   display: flex;
   justify-content: center;
