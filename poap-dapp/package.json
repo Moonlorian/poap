@@ -3,14 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://moonlorian.github.io/poap/",
   "scripts": {
     "start-devnet": "yarn run copy-devnet-config & vite dev",
     "build-devnet": "tsc & yarn run copy-devnet-config & vite build",
     "copy-devnet-config": "cp ./src/config/config.devnet.js ./src/config/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "yarn run build-devnet",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -47,10 +48,12 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "eslint-plugin-sort-exports": "^0.9.1",
+    "gh-pages": "^6.3.0",
     "globals": "^16.3.0",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "tailwindcss": "3.3.3",
+    "typescript": "^6.0.3",
     "vite": "^7.0.4",
     "vite-plugin-node-polyfills": "^0.28.0",
     "vite-plugin-svgr": "^4.3.0"

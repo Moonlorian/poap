@@ -8,8 +8,9 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 export default defineConfig({
   base: '/poap/',
   build: {
-    outDir: 'docs'
+    outDir: 'dist'
   },
+
   plugins: [
     react(),
     svgr({
