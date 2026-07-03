@@ -25,7 +25,7 @@ const AuthenticatedRoute = (props) => {
 
 export const App = () => {
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <Layout>
         <Routes>
           {routes.map((route) => (
