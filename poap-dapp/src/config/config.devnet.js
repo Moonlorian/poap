@@ -16,8 +16,8 @@ export const companyName = 'POAP dApp';
 export const chainId = 'D';
 
 export const EMBLEM_IMAGES = [
-  { label: 'Emblem1', url: '/emblem1.png' },
-  { label: 'Emblem2', url: '/emblem2.png' },
-  { label: 'Emblem3', url: '/emblem3.png' },
-  { label: 'Emblem4', url: '/emblem4.png' },
+  { label: 'Emblem1', url: 'https://moonlorian.github.io/poap/emblem1.png' },
+  { label: 'Emblem2', url: 'https://moonlorian.github.io/poap/emblem2.png' },
+  { label: 'Emblem3', url: 'https://moonlorian.github.io/poap/emblem3.png' },
+  { label: 'Emblem4', url: 'https://moonlorian.github.io/poap/emblem4.png' },
 ];

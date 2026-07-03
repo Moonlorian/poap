@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://moonlorian.github.io/poap/",
   "scripts": {
     "start-devnet": "yarn run copy-devnet-config & vite dev",
     "build-devnet": "tsc & yarn run copy-devnet-config & vite build",
