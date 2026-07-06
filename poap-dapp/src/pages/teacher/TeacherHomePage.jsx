@@ -146,7 +146,7 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
             className='poap-text-btn'
             onClick={() => setForm((f) => ({ ...f, useCustomUrl: true }))}
           >
-            Usar URL externa
+            Fer servir URL externa
           </button>
         </>
       ) : (
