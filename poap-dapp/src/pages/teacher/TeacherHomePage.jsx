@@ -37,10 +37,8 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
-  // Called by KeyImporter when a valid PEM is ready (from either tab)
   const handlePemReady = (rawPem) => {
     setError('');
     if (!savePem(rawPem)) {
@@ -239,7 +237,7 @@ export const TeacherHomePage = () => {
     <MobileLayout title='Professor' showBack onBack={() => navigate(RouteNamesEnum.role)}>
       <div className='poap-teacher'>
         {loading ? (
-          <p className='poap-muted'>Carregant...</p>
+          <p className='poap-muted'>Carregant..</p>
         ) : (
           <>
             {!event && !hasEnoughFunds && <LowBalanceWarning balance={balance} />}
