@@ -21,12 +21,12 @@ const STEPS = [
         i clica el botó <strong>&quot;Create a new wallet&quot;</strong>.
       </>
     ),
-    screenshot: '/guide_create/guide1.png'
+    screenshot: 'https://moonlorian.github.io/poap/guide_create/guide1.png'
   },
   {
     title: '2. Llegeix l’avís de seguretat',
     text: 'La wallet mostrarà un avís important sobre com guardar les teves credencials. Llegeix-lo i clica "Continue".',
-    screenshot: '/guide_create/guide2.png'
+    screenshot: 'https://moonlorian.github.io/poap/guide_create/guide2.png'
   },
   {
     title: '3. Guarda la teva frase secreta',
@@ -37,17 +37,17 @@ const STEPS = [
         escriu-la en un lloc segur abans de continuar.
       </>
     ),
-    screenshot: '/guide_create/guide3.png'
+    screenshot: 'https://moonlorian.github.io/poap/guide_create/guide3.png'
   },
   {
     title: '4. Confirma la frase',
     text: 'Et demanarà introduir algunes de les paraules, en l\u2019ordre indicat, per comprovar que les has desat correctament.',
-    screenshot: '/guide_create/guide4.png'
+    screenshot: 'https://moonlorian.github.io/poap/guide_create/guide4.png'
   },
   {
     title: '5. Estableix una contrasenya',
     text: 'Tria una contrasenya per protegir el fitxer de la teva wallet (keystore) en aquest dispositiu.',
-    screenshot: '/guide_create/guide5.png'
+    screenshot: 'https://moonlorian.github.io/poap/guide_create/guide5.png'
   },
   {
     title: '6. Descarrega el fitxer keystore',
@@ -58,7 +58,7 @@ const STEPS = [
         Guarda'l bé, no el comparteixis amb ningú.
       </>
     ),
-    screenshot: '/guide_create/guide6.png'
+    screenshot: 'https://moonlorian.github.io/poap/guide_create/guide6.png'
   },
   {
     title: '7. Torna a l’aplicació i inicia sessió',

@@ -25,7 +25,7 @@ const STEPS = [
         anomenat <strong>Faucet</strong>
       </>
     ),
-    screenshot: '/guide_claim/guide1.png'
+    screenshot: 'https://moonlorian.github.io/poap/guide_claim/guide1.png'
   },
   {
     title: '3. Clica "Request Tokens"',
@@ -36,7 +36,7 @@ const STEPS = [
         Cada adreça pot demanar fons una vegada cada 24 hores.
       </>
     ),
-    screenshot: '/guide_claim/guide2.png'
+    screenshot: 'https://moonlorian.github.io/poap/guide_claim/guide2.png'
   },
   {
     title: '4. Espera la confirmació',
