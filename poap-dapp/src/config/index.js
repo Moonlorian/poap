@@ -12,7 +12,7 @@ export const sampleAuthenticatedDomains = [API_URL];
 export const minEgld = 0.1;
 export const faucetUrl = 'https://devnet-wallet.multiversx.com/faucet';
 export const walletGuideUrl = 'https://devnet-wallet.multiversx.com';
-export const companyName = 'POAP dApp';
+export const companyName = "Prova d'assistència";
 export const chainId = 'D';
 
 export const EMBLEM_IMAGES = [

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { MobileLayout } from '@/components/MobileLayout';
+import { PartnerLogos } from '@/components/PartnerLogos';
 import { PoapButton } from '@/components/PoapButton';
 import { ROLE_KEY } from '@/config';
 import { RouteNamesEnum } from '@/routes/routeNames';
@@ -12,15 +13,15 @@ export const RoleSelectPage = () => {
     sessionStorage.setItem(ROLE_KEY, role);
     navigate(role === 'student' ? RouteNamesEnum.student : RouteNamesEnum.teacher);
   };
-  
+
   const handleLogout = async () => {
     const provider = getAccountProvider();
     await provider.logout();
     navigate(RouteNamesEnum.home);
   };
-  
+
   return (
-    <MobileLayout>
+    <MobileLayout subtitle="Emblemes digitals per a cada sessió">
       <div className='poap-role'>
         <h2 className='poap-title'>Benvingut</h2>
         <p className='poap-subtitle'>Selecciona el teu rol</p>
@@ -30,6 +31,8 @@ export const RoleSelectPage = () => {
           <PoapButton onClick={() => selectRole('teacher')}>Professor</PoapButton>
           <PoapButton variant='secondary' onClick={handleLogout}>Sortir</PoapButton>
         </div>
+
+        <PartnerLogos />
       </div>
     </MobileLayout>
   );

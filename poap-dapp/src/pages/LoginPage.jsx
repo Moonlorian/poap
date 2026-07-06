@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { MobileLayout } from '@/components/MobileLayout';
+import { PartnerLogos } from '@/components/PartnerLogos';
 import { PoapButton } from '@/components/PoapButton';
 import { useWalletLogin } from '@/hooks/useWalletLogin';
 import { useGetIsLoggedIn } from '@/lib';
@@ -27,10 +28,10 @@ export const LoginPage = () => {
   }, [isLoggedIn, navigate, searchParams]);
 
   return (
-    <MobileLayout>
+    <MobileLayout subtitle="Emblemes digitals per a cada sessió">
       <div className='poap-login'>
-        <h2 className='poap-title'>Sign In</h2>
-        <p className='poap-subtitle'>Hi there! Nice to see you again.</p>
+        <h2 className='poap-title'>Benvingut/da</h2>
+        <p className='poap-subtitle'>Inicia sessió amb el teu wallet per continuar</p>
 
         <div className='poap-login-actions'>
           <PoapButton onClick={loginWebWallet}>Web Wallet</PoapButton>
@@ -40,6 +41,8 @@ export const LoginPage = () => {
         <Link className='poap-link' to={RouteNamesEnum.walletGuide}>
           Crea un Wallet nou
         </Link>
+
+        <PartnerLogos />
       </div>
     </MobileLayout>
   );
