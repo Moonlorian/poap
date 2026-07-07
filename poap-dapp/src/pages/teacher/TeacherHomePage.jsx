@@ -24,6 +24,10 @@ const LowBalanceWarning = ({ balance }) => (
 );
 
 const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
+  const NAME_MAX = 256;
+  const NAME_REGEX = /^[^"'`\\<>{}|^~\[\]]*$/;
+  const NAME_HINT = 'Màxim 256 caràcters. No es permeten cometes ni símbols especials com < > { } \\ ` | ^ ~';
+
   const { address } = useGetAccount();
   const { sendCreateEvent } = usePoapTransactions();
   const { pem, pemAddress, savePem, saveFromKeystore, isValid: pemValid } = useOrganizerPem();
@@ -54,6 +58,8 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
       return;
     }
     if (!form.name.trim()) return setError('El nom és obligatori.');
+    if (!NAME_REGEX.test(form.name)) return setError('El nom conté caràcters no permesos. ' + NAME_HINT);
+    if (form.name.length > NAME_MAX) return setError(`El nom no pot superar els ${NAME_MAX} caràcters.`);
     const imageUrl = form.useCustomUrl ? form.customUrl.trim() : form.imageUrl;
 
     if (!imageUrl) return setError('Selecciona o introdueix una imatge.');
@@ -103,8 +109,22 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
         type='text'
         placeholder='Ex: Matemàtiques, 12 juny'
         value={form.name}
-        onChange={set('name')}
+        maxLength={NAME_MAX}
+        onChange={(e) => {
+          const val = e.target.value;
+          if (NAME_REGEX.test(val)) {
+            setForm((f) => ({ ...f, name: val }));
+          }
+        }}
       />
+      <p className='poap-hint'>
+        {NAME_HINT}
+        {form.name.length > 0 && (
+          <span className={form.name.length >= NAME_MAX ? ' poap-error-inline' : ''}>
+            {' '}({form.name.length}/{NAME_MAX})
+          </span>
+        )}
+      </p>
 
       <label className='poap-label'>Data de finalització</label>
       <input
@@ -198,14 +218,14 @@ const ActiveEventPanel = ({ event, onFinalize, onShowQr }) => {
 
   return (
     <div className='poap-active-event'>
-      <h3>Classe activa</h3>
+      <h3 className='poap-event-name'>Classe activa</h3>
       {event.emblemUrl && (
         <img className='poap-event-img' src={event.emblemUrl} alt={event.name} />
       )}
       <p className='poap-event-name'>{event.name}</p>
-      <p className='poap-muted'>Inici: {formatDateTime(event.startDate)}</p>
-      <p className='poap-muted'>Fi: {formatDateTime(event.endDate)}</p>
-      <p className='poap-muted'>
+      <p className='poap-muted-center'>Inici: {formatDateTime(event.startDate)}</p>
+      <p className='poap-muted-center'>Fi: {formatDateTime(event.endDate)}</p>
+      <p className='poap-muted-center'>
         Participants: {event.currentParticipants} / {event.maxParticipants}
       </p>
       <br></br>

@@ -168,6 +168,12 @@ br {
   color: var(--poap-text-muted);
 }
 
+.poap-muted-center {
+  margin: auto;
+  font-size: var(--poap-fs-sm);
+  color: var(--poap-text-muted);
+}
+
 .poap-mt {
   margin-top: 1rem;
 }
@@ -991,4 +997,16 @@ br {
   margin: 0.15rem 0 0;
   font-size: var(--poap-fs-xs);
   color: var(--poap-text-muted);
+}
+
+.poap-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.poap-error-inline {
+  color: #dc2626;
+  font-weight: 600;
 }
