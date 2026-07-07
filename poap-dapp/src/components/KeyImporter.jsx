@@ -2,13 +2,14 @@ import { useRef, useState } from 'react';
 import { PoapButton } from '@/components/PoapButton';
 
 export const KeyImporter = ({ onPemReady, currentAddress }) => {
-  const [tab, setTab] = useState('keystore'); // 'keystore' | 'pem'
+  const [tab, setTab] = useState('keystore');
   const [pemText, setPemText] = useState('');
   const [keystoreJson, setKeystoreJson] = useState(null);
   const [keystoreFilename, setKeystoreFilename] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [imported, setImported] = useState(false);
   const fileRef = useRef(null);
   const pemFileRef = useRef(null);
 
@@ -43,6 +44,7 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
     setKeystoreFilename('');
     setPassword('');
     setError('');
+    setImported(false);
     if (fileRef.current) fileRef.current.value = '';
   };
 
@@ -68,13 +70,11 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
     try {
       const { decryptKeystoreToPem } = await import('@/contracts/poapContract');
       const pem = decryptKeystoreToPem(keystoreJson, password);
-
       onPemReady(pem);
       setPassword('');
-
+      setImported(true);
     } catch (err) {
       setError(err?.message ?? 'Error desxifrant el wallet.');
-
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,7 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
           className={`poap-tab${tab === 'keystore' ? ' active' : ''}`}
           onClick={() => { setTab('keystore'); setError(''); }}
         >
-          Wallet JSON
+          Fitxer JSON
         </button>
         <button
           type='button'
@@ -172,18 +172,23 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
                   type='password'
                   placeholder='Contrasenya del wallet'
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleKeystoreSubmit()}
+                  onChange={(e) => { setPassword(e.target.value); setImported(false); }}
+                  onKeyDown={(e) => e.key === 'Enter' && !imported && handleKeystoreSubmit()}
                   autoComplete='current-password'
+                  disabled={imported}
                 />
-                <PoapButton
-                  variant='secondary'
-                  onClick={handleKeystoreSubmit}
-                  disabled={loading}
-                  className='poap-btn-block'
-                >
-                  {loading ? 'Desxifrant...' : 'Importar wallet'}
-                </PoapButton>
+                {imported ? (
+                  <p className='poap-success'>Clau importada correctament.</p>
+                ) : (
+                  <PoapButton
+                    variant='secondary'
+                    onClick={handleKeystoreSubmit}
+                    disabled={loading}
+                    className='poap-btn-block'
+                  >
+                    {loading ? 'Desxifrant...' : 'Importar wallet'}
+                  </PoapButton>
+                )}
               </>
             )}
           </div>

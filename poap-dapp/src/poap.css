@@ -1010,3 +1010,13 @@ br {
   color: #dc2626;
   font-weight: 600;
 }
+
+.poap-success {
+  color: #16a34a;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
