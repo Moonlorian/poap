@@ -7,12 +7,12 @@ erd1xs7rel2dy05xr0unqmwv86cm4e9ccz93t4fsu880fkznk33nmkask27mld
 
 ### Smart contract
 ```
-erd1qqqqqqqqqqqqqpgq5prfr0ynhtsgu5x885hddsfdz2zcz00pmkasp9cmd6
+erd1qqqqqqqqqqqqqpgq69963edk52a44chukh2vtsakn6fgqe7xmkaslagtxf
 ```
 
 ### SFT collection id
 ```
-POAP-042a5d
+POAP-c635f3
 ```
 
 ### Test organizer/client wallets

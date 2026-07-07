@@ -1,6 +1,6 @@
 {
     "emittedTransaction": {
-        "nonce": 28,
+        "nonce": 38,
         "value": "50000000000000000",
         "receiver": "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzllls8a5w6u",
         "sender": "erd1xs7rel2dy05xr0unqmwv86cm4e9ccz93t4fsu880fkznk33nmkask27mld",
@@ -13,11 +13,11 @@
         "version": 2,
         "options": 0,
         "guardian": "",
-        "signature": "2cb940381f58d02529125a6bb2468c2c44c01e82bfb59aed55cdd1e7f3b6856b925509deddd609cd8e5928d0ee8b2e1fdbba6c820f47d7dcd981834f7f684008",
+        "signature": "25a9d1ded4bc940de9c8c3b933e90d351acc7799d36a76de42783201cbd0e297bb20ec8443f89f9cd0d38277b601906973219bcc6d5fbe610fc869405b5a1c03",
         "guardianSignature": "",
         "relayer": "",
         "relayerSignature": ""
     },
     "emittedTransactionData": "issueSemiFungible@504f4150546f6b656e@504f4150",
-    "emittedTransactionHash": "6adf11d1b7192f78d06a4069050aad8c0ca43b3794a1311db385ea8186cf62fd"
+    "emittedTransactionHash": "f368d2794a3c4a8871a4e55d2bf742c6af018f8a3057d95680e8a43245c22498"
 }

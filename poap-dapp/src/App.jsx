@@ -1,25 +1,21 @@
-import {
-  Navigate,
-  Route,
-  BrowserRouter as Router,
-  Routes
-} from 'react-router-dom';
+import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
+
 import { Layout } from '@/components';
 import { useGetIsLoggedIn } from '@/lib/sdkDapp/sdkDapp.hooks';
 import { PageNotFound } from '@/pages';
 import { routes } from '@/routes/routes';
 import './App.css';
 
-// Component to handle authentication for routes
 const AuthenticatedRoute = (props) => {
   const isLoggedIn = useGetIsLoggedIn();
+  const location = useLocation();
 
   if (props.authenticatedRoute && !isLoggedIn) {
-    return <Navigate to='/unlock' replace />;
+    const redirectTo = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/?redirect=${redirectTo}`} replace />;
   }
 
   const { component: RouteComponent } = props;
-
   return <RouteComponent />;
 };
 

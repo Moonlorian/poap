@@ -2,14 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MobileLayout } from '@/components/MobileLayout';
 import { PoapButton } from '@/components/PoapButton';
-import { claimEmblemWithPem, getActiveEvent } from '@/contracts/poapContract';
+import { claimEmblemWithPem, getActiveEvent, hasClaimed } from '@/contracts/poapContract';
 import { buildNftIdentifier, recordEmblemDate } from '@/utils/emblemDates';
 import { useGetAccount } from '@/lib';
 import { RouteNamesEnum } from '@/routes/routeNames';
 import { parseClaimParams } from '@/utils/dates';
 import { tokenId } from '@/config';
 
-const STATUS = { IDLE: 'idle', CLAIMING: 'claiming', SUCCESS: 'success', ERROR: 'error' };
+const STATUS = {
+  IDLE: 'idle',
+  CLAIMING: 'claiming',
+  SUCCESS: 'success',
+  ALREADY_CLAIMED: 'already_claimed',
+  ERROR: 'error'
+};
 
 export const ClaimPage = () => {
   const navigate = useNavigate();
@@ -39,9 +45,18 @@ export const ClaimPage = () => {
 
       try {
         const activeEvent = await getActiveEvent(organizer);
+        if (!activeEvent) throw new Error('Aquesta classe no és activa');
+
         setEvent(activeEvent);
+        const alreadyClaimed = await hasClaimed(activeEvent.eventId, address);
+
+        if (alreadyClaimed) {
+          setStatus(STATUS.ALREADY_CLAIMED);
+          return;
+        }
 
         await claimEmblemWithPem({ pem, recipientAddress: address });
+
         if (activeEvent?.tokenNonce != null) {
           const identifier = buildNftIdentifier(tokenId, activeEvent.tokenNonce);
           recordEmblemDate(identifier, Date.now());
@@ -75,16 +90,23 @@ export const ClaimPage = () => {
 
         {status === STATUS.SUCCESS && (
           <div className='poap-claim-success'>
-            <p className='poap-success-icon'>✅</p>
             <h3>Emblema rebut!</h3>
             {event && <p className='poap-event-name'>{event.name}</p>}
             <PoapButton onClick={handleContinue}>Veure l&apos;emblema</PoapButton>
           </div>
         )}
 
+        {status === STATUS.ALREADY_CLAIMED && (
+          <div className='poap-claim-success'>
+            <h3>Ja tens aquest emblema</h3>
+            {event && <p className='poap-event-name'>{event.name}</p>}
+            <p className='poap-muted'>Ja havies reclamat l&apos;emblema d&apos;aquesta classe.</p>
+            <PoapButton onClick={handleContinue}>Veure l&apos;emblema</PoapButton>
+          </div>
+        )}
+
         {status === STATUS.ERROR && (
           <div className='poap-claim-error'>
-            <p className='poap-error-icon'>❌</p>
             <h3>Error en reclamar</h3>
             <p className='poap-error'>{errorMsg}</p>
             <PoapButton variant='secondary' onClick={() => navigate(RouteNamesEnum.student)}>

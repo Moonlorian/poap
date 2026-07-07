@@ -6,6 +6,7 @@ pub type EventId = u64;
 #[type_abi]
 #[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, Clone)]
 pub struct Event<M: ManagedTypeApi> {
+    pub event_id: EventId,              // Event Id
     pub name: ManagedBuffer<M>,         // Event name/title
     pub emblem_url: ManagedBuffer<M>,   // URL of the emblem's image
     pub start_date: TimestampMillis,    // Creation/start date of the event
@@ -20,6 +21,7 @@ pub struct Event<M: ManagedTypeApi> {
 
 impl<M: ManagedTypeApi> Event<M> {
     pub fn new(
+        event_id: EventId,
         name: ManagedBuffer<M>,
         emblem_url: ManagedBuffer<M>,
         start_date: TimestampMillis,
@@ -29,6 +31,7 @@ impl<M: ManagedTypeApi> Event<M> {
         organizer: ManagedAddress<M>,
     ) -> Self {
         Self {
+            event_id,
             name,
             emblem_url,
             start_date,

@@ -85,7 +85,7 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
         endDate: endTs,
         maxParticipants: maxP
       });
-      onSuccess();
+      setTimeout(onSuccess, 500);
     } catch (err) {
       setError(err?.message ?? 'Error en crear la classe.');
     } finally {
@@ -188,7 +188,7 @@ const ActiveEventPanel = ({ event, onFinalize, onShowQr }) => {
     setError('');
     try {
       await sendFinalizeEvent();
-      onFinalize();
+      setTimeout(onFinalize, 200);
     } catch (err) {
       setError(err?.message ?? 'Error en finalitzar.');
     } finally {
@@ -203,7 +203,7 @@ const ActiveEventPanel = ({ event, onFinalize, onShowQr }) => {
         <img className='poap-event-img' src={event.emblemUrl} alt={event.name} />
       )}
       <p className='poap-event-name'>{event.name}</p>
-      <p className='poap-muted'>Inici: {formatDateTime(event.startDate * 1000)}</p>
+      <p className='poap-muted'>Inici: {formatDateTime(event.startDate)}</p>
       <p className='poap-muted'>Fi: {formatDateTime(event.endDate)}</p>
       <p className='poap-muted'>
         Participants: {event.currentParticipants} / {event.maxParticipants}
@@ -237,7 +237,7 @@ export const TeacherHomePage = () => {
     <MobileLayout title='Professor' showBack onBack={() => navigate(RouteNamesEnum.role)}>
       <div className='poap-teacher'>
         {loading ? (
-          <p className='poap-muted'>Carregant..</p>
+          <p className='poap-muted'>Carregant...</p>
         ) : (
           <>
             {!event && !hasEnoughFunds && <LowBalanceWarning balance={balance} />}

@@ -113,6 +113,10 @@
             "type": "struct",
             "fields": [
                 {
+                    "name": "event_id",
+                    "type": "u64"
+                },
+                {
                     "name": "name",
                     "type": "bytes"
                 },

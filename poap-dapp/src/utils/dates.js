@@ -36,7 +36,7 @@ export const buildClaimUrl = (origin, organizer, pem) => {
     o: organizer,
     k: encodePem(pem)
   });
-  return `${base}/alumne/reclamar?${params.toString()}`;
+  return `${base}/poap/alumne/reclamar?${params.toString()}`;
 };
 
 export const parseClaimParams = (searchParams) => ({

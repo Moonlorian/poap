@@ -5,8 +5,8 @@ export * from './sharedConfig';
 export const API_URL = 'https://devnet-api.multiversx.com';
 export const PROXY_URL = 'https://devnet-gateway.multiversx.com';
 export const contractAddress =
-  'erd1qqqqqqqqqqqqqpgqp058xvyasx0uw9lshjmk9np575pktrpemkassyphv3';
-export const tokenId = 'POAP-9142a3';
+  'erd1qqqqqqqqqqqqqpgq69963edk52a44chukh2vtsakn6fgqe7xmkaslagtxf';
+export const tokenId = 'POAP-c635f3';
 export const environment = EnvironmentsEnum.devnet;
 export const sampleAuthenticatedDomains = [API_URL];
 export const minEgld = 0.1;

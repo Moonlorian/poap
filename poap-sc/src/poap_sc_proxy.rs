@@ -165,6 +165,7 @@ pub struct Event<Api>
 where
     Api: ManagedTypeApi,
 {
+    pub event_id: u64,
     pub name: ManagedBuffer<Api>,
     pub emblem_url: ManagedBuffer<Api>,
     pub start_date: TimestampMillis,

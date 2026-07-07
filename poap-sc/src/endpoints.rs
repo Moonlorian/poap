@@ -89,11 +89,11 @@ pub trait EndpointsModule: crate::storage::StorageModule {
         }
       
         // Mint all the needed SFTs now and create the event struct
+        let event_id = self.get_new_event_id();
         let token_nonce = self.mint_sfts(max_participants, &name, &url);
-        let event = Event::new(name, url, date, end_date, max_participants, token_nonce, organizer.clone());
+        let event = Event::new(event_id, name, url, date, end_date, max_participants, token_nonce, organizer.clone());
 
         // Store the event
-        let event_id = self.get_new_event_id();
         self.events(event_id).set(event);
         self.event_by_organizer(&organizer).set(event_id);
     }

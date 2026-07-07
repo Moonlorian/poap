@@ -51,6 +51,7 @@ export const parseEvent = (raw) => {
   const event = raw.valueOf ? raw.valueOf() : raw;
   if (!event || typeof event !== 'object') return null;
   return {
+    eventId: Number(event.event_id ?? event.eventId ?? 0),
     name: event.name?.toString?.() ?? String(event.name ?? ''),
     emblemUrl: event.emblem_url?.toString?.() ?? String(event.emblem_url ?? ''),
     startDate: Number(event.start_date ?? event.startDate ?? 0),

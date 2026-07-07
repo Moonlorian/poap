@@ -15,16 +15,22 @@ export const LoginPage = () => {
   const { loginWebWallet, loginDeFiWallet } = useWalletLogin();
 
   useEffect(() => {
-    if (!isLoggedIn) return;
+  if (!isLoggedIn) return;
 
-    const hasClaim = searchParams.get('o') && searchParams.get('k');
-    if (hasClaim) {
-      sessionStorage.setItem(ROLE_KEY, 'student');
-      navigate(`${RouteNamesEnum.claim}?${searchParams.toString()}`, { replace: true });
-      return;
-    }
+  const hasClaim = searchParams.get('o') && searchParams.get('k');
+  if (hasClaim) {
+    sessionStorage.setItem(ROLE_KEY, 'student');
+    navigate(`${RouteNamesEnum.claim}?${searchParams.toString()}`, { replace: true });
+    return;
+  }
 
-    navigate(RouteNamesEnum.role, { replace: true });
+  const redirect = searchParams.get('redirect');
+  if (redirect) {
+    navigate(decodeURIComponent(redirect), { replace: true });
+    return;
+  }
+
+  navigate(RouteNamesEnum.role, { replace: true });
   }, [isLoggedIn, navigate, searchParams]);
 
   return (
