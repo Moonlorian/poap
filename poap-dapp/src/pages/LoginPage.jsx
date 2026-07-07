@@ -35,7 +35,6 @@ export const LoginPage = () => {
 
         <div className='poap-login-actions'>
           <PoapButton onClick={loginWebWallet}>Web Wallet</PoapButton>
-          <PoapButton onClick={loginDeFiWallet}>DeFi Wallet</PoapButton>
         </div>
 
         <Link className='poap-link' to={RouteNamesEnum.walletGuide}>

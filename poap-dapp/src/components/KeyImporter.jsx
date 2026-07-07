@@ -226,7 +226,7 @@ export const KeyImporter = ({ onPemReady, currentAddress }) => {
               onClick={handlePemSubmit}
               className='poap-btn-block'
             >
-              Usar aquest PEM
+              Utilitzar aquest PEM
             </PoapButton>
           </div>
         </div>        

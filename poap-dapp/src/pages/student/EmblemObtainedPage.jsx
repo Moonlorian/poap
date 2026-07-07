@@ -14,7 +14,7 @@ export const EmblemObtainedPage = () => {
     return (
       <MobileLayout title='Emblema obtingut!' showBack onBack={() => navigate(RouteNamesEnum.student)}>
         <p className='poap-muted'>No s&apos;han trobat dades de l&apos;emblema.</p>
-        <PoapButton onClick={() => navigate(RouteNamesEnum.student)}>Retorna</PoapButton>
+        <PoapButton onClick={() => navigate(RouteNamesEnum.student)}>Torna enrere</PoapButton>
       </MobileLayout>
     );
   }
@@ -49,7 +49,7 @@ export const EmblemObtainedPage = () => {
           )}
         </div>
 
-        <PoapButton onClick={() => navigate(RouteNamesEnum.student)}>Retorna</PoapButton>
+        <PoapButton onClick={() => navigate(RouteNamesEnum.student)}>Torna enrere</PoapButton>
       </div>
     </MobileLayout>
   );
