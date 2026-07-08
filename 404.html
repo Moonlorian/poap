@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      var path = window.location.pathname + window.location.search + window.location.hash;
+      window.location.replace('/poap/?spa=' + encodeURIComponent(path));
+    </script>
+  </head>
+</html>
