@@ -19,13 +19,36 @@ export const QrDisplay = ({ value, title }) => {
     });
   };
 
+  const handleCopyTitle = async () => {
+    if (!title) return;
+
+    try {
+      await navigator.clipboard.writeText(title);
+    } catch (err) {
+      console.error('No se pudo copiar el título:', err);
+    }
+  };
+
   return (
-    <div className='poap-qr-display'>
-      {title && <p className='poap-section-title'>{title}</p>}
-      <div className='poap-qr-canvas' ref={canvasRef}>
-        <QRCodeCanvas value={value} size={260} level='L' includeMargin />
+    <div className="poap-qr-display">
+      {title && (
+        <div className="poap-section-header">
+          <p className="poap-section-title">{title}</p>
+          <button
+            className="poap-copy-button"
+            onClick={handleCopyTitle}
+            title="Copiar título"
+          >
+            📋
+          </button>
+        </div>
+      )}
+
+      <div className="poap-qr-canvas" ref={canvasRef}>
+        <QRCodeCanvas value={value} size={260} level="L" includeMargin />
       </div>
-      <PoapButton variant='secondary' onClick={handleDownload}>
+
+      <PoapButton variant="secondary" onClick={handleDownload}>
         Descarrega PNG
       </PoapButton>
     </div>

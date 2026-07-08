@@ -38,7 +38,7 @@ export const QrPage = () => {
                 No s&apos;ha trobat la clau PEM. Crea la classe de nou.
               </p>
             ) : (
-              <QrDisplay value={claimUrl} title={event.name} />
+              <QrDisplay value={claimUrl} title={claimUrl} />
             )}
           </>
         )}
