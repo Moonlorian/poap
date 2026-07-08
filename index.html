@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      const redirect = sessionStorage.getItem('spa_redirect');
+      if (redirect) {
+        sessionStorage.removeItem('spa_redirect');
+        window.history.replaceState(null, '', redirect);
+      }
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image" href="/poap/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,12 +17,5 @@
   </head>
   <body>
     <div id="root"></div>
-    <script>
-      const redirect = sessionStorage.getItem('spa_redirect');
-      if (redirect) {
-        sessionStorage.removeItem('spa_redirect');
-        window.history.replaceState(null, '', redirect);
-      }
-    </script>
   </body>
 </html>

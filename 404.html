@@ -2,9 +2,8 @@
 <html>
   <head>
     <script>
-      const path = window.location.pathname + window.location.search;
-      sessionStorage.setItem('spa_redirect', path);
-      window.location.replace('/poap/');
+      var path = window.location.pathname + window.location.search + window.location.hash;
+      window.location.replace('/poap/?spa=' + encodeURIComponent(path));
     </script>
   </head>
 </html>
