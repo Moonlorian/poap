@@ -1,5 +1,4 @@
 import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
-
 import { Layout } from '@/components';
 import { useGetIsLoggedIn } from '@/lib/sdkDapp/sdkDapp.hooks';
 import { PageNotFound } from '@/pages';

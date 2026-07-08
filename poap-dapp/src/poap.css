@@ -731,6 +731,8 @@ br {
   background: var(--poap-bg);
   border: 1px solid var(--poap-border);
   border-radius: var(--poap-radius);
+  height: 160px;
+  justify-content: center;
 }
 
 .poap-emblem-image {
@@ -774,6 +776,12 @@ br {
   color: var(--poap-ink);
   margin: 0;
   line-height: 1.3;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word; 
 }
 
 .poap-emblem-date {

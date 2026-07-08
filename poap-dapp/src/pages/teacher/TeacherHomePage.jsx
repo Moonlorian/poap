@@ -91,7 +91,7 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
         endDate: endTs,
         maxParticipants: maxP
       });
-      setTimeout(onSuccess, 500);
+      onSuccess();
     } catch (err) {
       setError(err?.message ?? 'Error en crear la classe.');
     } finally {
@@ -208,7 +208,7 @@ const ActiveEventPanel = ({ event, onFinalize, onShowQr }) => {
     setError('');
     try {
       await sendFinalizeEvent();
-      setTimeout(onFinalize, 200);
+      onFinalize();
     } catch (err) {
       setError(err?.message ?? 'Error en finalitzar.');
     } finally {
