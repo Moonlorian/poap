@@ -91,7 +91,7 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
         endDate: endTs,
         maxParticipants: maxP
       });
-      onSuccess();
+      await onSuccess();
     } catch (err) {
       setError(err?.message ?? 'Error en crear la classe.');
     } finally {
@@ -191,7 +191,12 @@ const CreateEventForm = ({ onSuccess, hasEnoughFunds }) => {
       {error && <p className='poap-error'>{error}</p>}
 
       <PoapButton onClick={handleSubmit} disabled={submitting || !hasEnoughFunds}>
-        {submitting ? 'Creant classe...' : 'Crear classe'}
+        {submitting ? (
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+            <span className='poap-spinner-inline' />
+            Creant classe...
+          </span>
+        ) : 'Crear classe'}
       </PoapButton>
     </div>
   );
@@ -241,7 +246,7 @@ const ActiveEventPanel = ({ event, onFinalize, onShowQr }) => {
 export const TeacherHomePage = () => {
   const navigate = useNavigate();
   const { address } = useGetAccount();
-  const { event, loading: eventLoading, refresh } = useActiveEvent(address);
+  const { event, loading: eventLoading, refresh, refreshUntilChanged } = useActiveEvent(address);
   const { balance, loading: balanceLoading, hasEnoughFunds, refresh: refreshBalance } =
     useAccountBalance(address);
 
@@ -264,11 +269,17 @@ export const TeacherHomePage = () => {
             {event ? (
               <ActiveEventPanel
                 event={event}
-                onFinalize={() => { refresh(); refreshBalance(); }}
+                onFinalize={() => {
+                  refreshUntilChanged(event);
+                  refreshBalance();
+                }}
                 onShowQr={() => navigate(RouteNamesEnum.teacherQr)}
               />
             ) : (
-              <CreateEventForm onSuccess={refresh} hasEnoughFunds={hasEnoughFunds} />
+              <CreateEventForm
+                onSuccess={() => refreshUntilChanged(null)}
+                hasEnoughFunds={hasEnoughFunds}
+              />
             )}
           </>
         )}

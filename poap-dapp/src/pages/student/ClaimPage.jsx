@@ -4,6 +4,8 @@ import { MobileLayout } from '@/components/MobileLayout';
 import { PoapButton } from '@/components/PoapButton';
 import { claimEmblemWithPem, getActiveEvent, hasClaimed } from '@/contracts/poapContract';
 import { buildNftIdentifier, recordEmblemDate } from '@/utils/emblemDates';
+import { fetchAccountNfts } from '@/api/devnetApi';
+import { pollUntilChanged } from '@/utils/pollUntilChanged';
 import { useGetAccount } from '@/lib';
 import { RouteNamesEnum } from '@/routes/routeNames';
 import { parseClaimParams } from '@/utils/dates';
@@ -12,6 +14,7 @@ import { tokenId } from '@/config';
 const STATUS = {
   IDLE: 'idle',
   CLAIMING: 'claiming',
+  WAITING_INDEX: 'waiting_index',
   SUCCESS: 'success',
   ALREADY_CLAIMED: 'already_claimed',
   ERROR: 'error'
@@ -55,12 +58,24 @@ export const ClaimPage = () => {
           return;
         }
 
+        const nftsBefore = await fetchAccountNfts(address).catch(() => []);
+        const countBefore = nftsBefore.length;
+
         await claimEmblemWithPem({ pem, recipientAddress: address });
 
         if (activeEvent?.tokenNonce != null) {
           const identifier = buildNftIdentifier(tokenId, activeEvent.tokenNonce);
           recordEmblemDate(identifier, Date.now());
         }
+
+        setStatus(STATUS.WAITING_INDEX);
+        await pollUntilChanged({
+          fetchFn: () => fetchAccountNfts(address),
+          previousValue: countBefore,
+          hasChanged: (newNfts) => (newNfts?.length ?? 0) > countBefore,
+          intervalMs: 2000,
+          timeoutMs: 30000
+        });
 
         setStatus(STATUS.SUCCESS);
       } catch (err) {
@@ -84,6 +99,14 @@ export const ClaimPage = () => {
           <div className='poap-claim-loading'>
             <div className='poap-spinner' />
             <p className='poap-muted'>Reclamant el teu emblema...</p>
+            {event && <p className='poap-event-name'>{event.name}</p>}
+          </div>
+        )}
+
+        {status === STATUS.WAITING_INDEX && (
+          <div className='poap-claim-loading'>
+            <div className='poap-spinner' />
+            <p className='poap-muted'>Sincronitzant amb la xarxa...</p>
             {event && <p className='poap-event-name'>{event.name}</p>}
           </div>
         )}

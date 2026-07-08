@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { fetchAccountNfts } from '@/api/devnetApi';
+import { pollUntilChanged } from '@/utils/pollUntilChanged';
 
 export const useAccountNfts = (address) => {
   const [nfts, setNfts] = useState([]);
@@ -7,12 +8,7 @@ export const useAccountNfts = (address) => {
   const [error, setError] = useState(null);
 
   const refresh = useCallback(async () => {
-    if (!address) {
-      setNfts([]);
-      setLoading(false);
-      return;
-    }
-
+    if (!address) { setNfts([]); setLoading(false); return; }
     try {
       setLoading(true);
       setError(null);
@@ -26,9 +22,24 @@ export const useAccountNfts = (address) => {
     }
   }, [address]);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const refreshUntilChanged = useCallback(async (currentNfts) => {
+    setLoading(true);
+    try {
+      const currentCount = currentNfts?.length ?? 0;
+      const newNfts = await pollUntilChanged({
+        fetchFn: () => fetchAccountNfts(address),
+        previousValue: currentNfts,
+        hasChanged: (newVal) => (newVal?.length ?? 0) !== currentCount
+      });
+      setNfts(newNfts ?? []);
+    } catch (err) {
+      setError(err.message ?? 'Error actualitzant');
+    } finally {
+      setLoading(false);
+    }
+  }, [address]);
 
-  return { nfts, loading, error, refresh };
+  useEffect(() => { refresh(); }, [refresh]);
+
+  return { nfts, loading, error, refresh, refreshUntilChanged };
 };

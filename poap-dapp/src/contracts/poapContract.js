@@ -161,7 +161,10 @@ export const sendSignedTransactions = async (signedTransactions, messages) => {
   const sentTransactions = await transactionManager.send(signedTransactions);
   if (!sentTransactions?.length) throw new Error('Transaction sending failed');
   transactionManager.track(sentTransactions, { transactionsDisplayInfo: messages });
-  return sentTransactions[0].hash;
+
+  const hash = sentTransactions[0].hash;
+  await getNetworkProvider().awaitTransactionCompleted(hash);
+  return hash;
 };
 
 export const signAndSendWithProvider = async (transaction, messages) => {
